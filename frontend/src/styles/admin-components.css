@@ -425,6 +425,82 @@ footer small {
   border-radius: 20px;
   background: linear-gradient(90deg, #23657a, #c58b2a);
 }
+.platform-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+  margin: 0 0 22px;
+}
+.platform-metric-grid article {
+  display: grid;
+  gap: 8px;
+  min-height: 104px;
+  padding: 20px;
+  border: 1px solid #dce4e7;
+  background: #fff;
+}
+.platform-metric-grid span {
+  color: #687980;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.platform-metric-grid b {
+  color: #173f5f;
+  font-size: 28px;
+}
+.platform-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+.platform-table-scroll {
+  overflow-x: auto;
+}
+.platform-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  background: #fff;
+}
+.platform-table th,
+.platform-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.platform-table th {
+  color: #687980;
+  font-size: 11px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.platform-table td {
+  color: var(--ink);
+  font-size: 13px;
+}
+.platform-detail-cell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+}
+.platform-detail-cell b,
+.platform-detail-cell small {
+  min-width: 0;
+}
+.platform-detail-cell small {
+  grid-column: 2;
+  color: #738488;
+  overflow-wrap: anywhere;
+}
+.tenant-swatch {
+  grid-row: span 2;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px #eef3f4;
+}
 @media (max-width: 850px) {
   .report-metric-grid {
     grid-template-columns: 1fr 1fr;

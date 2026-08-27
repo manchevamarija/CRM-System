@@ -141,6 +141,55 @@ export type TenantDescriptor = {
   primaryColor: string;
   accentColor: string;
 };
+export type PlatformTenant = TenantDescriptor & {
+  organizations: number;
+  contactRequests: number;
+  tickets: number;
+  meetings: number;
+  activeSubscriptions: number;
+  staffMemberships: number;
+  auditEvents: number;
+};
+export type PlatformTotals = {
+  organizations: number;
+  contactRequests: number;
+  tickets: number;
+  meetings: number;
+  activeSubscriptions: number;
+  staffMemberships: number;
+  users: number;
+  platformAdmins: number;
+};
+export type PlatformAudit = {
+  id: string;
+  tenantId: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  actorUserId?: string;
+  createdAt: string;
+};
+export type PlatformOverview = {
+  tenants: PlatformTenant[];
+  totals: PlatformTotals;
+  recentAudit: PlatformAudit[];
+};
+export type PlatformMembership = {
+  tenantId: string;
+  accessLevel: string;
+};
+export type PlatformUser = {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  status: "PendingVerification" | "Active" | "Inactive";
+  emailVerifiedAt?: string;
+  lastLoginAt?: string;
+  createdAt: string;
+  roles: string[];
+  memberships: PlatformMembership[];
+};
 export type ContactRequestTransfer = {
   id: string;
   contactRequestId: string;

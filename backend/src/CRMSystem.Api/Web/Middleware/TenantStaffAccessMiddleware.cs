@@ -11,12 +11,16 @@ namespace CRMSystem.Api.Web.Middleware;
 /// </summary>
 public sealed class TenantStaffAccessMiddleware(RequestDelegate next)
 {
-    private static readonly string[] StaffRoles = ["Admin", "HelpDeskAgent", "Expert"];
-
     public async Task InvokeAsync(HttpContext context, PortalDbContext db)
     {
         var principal = context.User;
-        if (principal.Identity?.IsAuthenticated != true || !StaffRoles.Any(principal.IsInRole))
+        if (principal.Identity?.IsAuthenticated != true || !PortalRoles.TenantStaff.Any(principal.IsInRole))
+        {
+            await next(context);
+            return;
+        }
+
+        if (principal.IsInRole(PortalRoles.PlatformAdmin))
         {
             await next(context);
             return;

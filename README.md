@@ -70,6 +70,13 @@ The repository is the shared implementation for BAU, DIGITMAK, VEZILKA and HPC. 
 - Reports and downloadable spreadsheet exports.
 - System settings, evidence/records, and account-change request processing.
 
+### Platform administration
+
+- Dedicated `PlatformAdmin` role and authorization policy for global cross-tenant operations.
+- Separate `/platform-admin` interface for centre-level totals, global users, tenant memberships, and recent audit events.
+- `/api/platform-admin/*` endpoints use explicit platform-admin authorization before reading across tenant query filters.
+- Tenant administrators remain scoped to their own centre; they cannot assign or remove the `PlatformAdmin` role.
+
 ### Platform services
 
 - Real-time ticket, notification, and CRM updates through SignalR.
@@ -187,6 +194,8 @@ Production administrator credentials must be provided through the following envi
 
 - `ADMIN_BOOTSTRAP_EMAIL`
 - `ADMIN_BOOTSTRAP_PASSWORD`
+
+The bootstrap administrator is also granted `PlatformAdmin` in local/default deployments. In production, set `PLATFORM_ADMIN_EMAIL` when only one specific bootstrap mailbox should receive platform-wide access.
 
 ## Manual Start
 

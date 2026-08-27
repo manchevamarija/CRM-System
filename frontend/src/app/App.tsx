@@ -14,6 +14,11 @@ const AdminDashboardPage = lazy(() =>
     default: module.AdminDashboardPage,
   })),
 );
+const PlatformAdminDashboardPage = lazy(() =>
+  import("../pages/platform/PlatformAdminDashboardPage").then((module) => ({
+    default: module.PlatformAdminDashboardPage,
+  })),
+);
 const ClientDashboardPage = lazy(() =>
   import("../pages/client/ClientDashboardPage").then((module) => ({
     default: module.ClientDashboardPage,
@@ -109,6 +114,7 @@ const routes: Record<View, string> = {
   dashboard: "/portal",
   staff: "/staff",
   admin: "/admin",
+  "platform-admin": "/platform-admin",
 };
 const views = Object.fromEntries(
   Object.entries(routes).map(([view, path]) => [path, view]),
@@ -135,15 +141,29 @@ export default function App() {
       return;
     }
     const hasStaffAccess = user.roles.some((role) =>
-      ["HelpDeskAgent", "Expert", "Admin"].includes(role),
+      ["HelpDeskAgent", "Expert", "Admin", "PlatformAdmin"].includes(role),
     );
+    if (view === "platform-admin" && !user.roles.includes("PlatformAdmin"))
+      navigate(routes.dashboard, { replace: true });
     if (view === "staff" && !hasStaffAccess)
       navigate(routes.dashboard, { replace: true });
-    if (view === "admin" && !user.roles.includes("Admin"))
+    if (
+      view === "admin" &&
+      !user.roles.some((role) => ["Admin", "PlatformAdmin"].includes(role))
+    )
       navigate(routes.dashboard, { replace: true });
-    if (view === "dashboard" && user.roles.includes("Admin"))
+    if (view === "dashboard" && user.roles.includes("PlatformAdmin"))
+      navigate(routes["platform-admin"], { replace: true });
+    if (
+      view === "dashboard" &&
+      !user.roles.includes("PlatformAdmin") &&
+      user.roles.includes("Admin")
+    )
       navigate(routes.admin, { replace: true });
-    if (view === "contact" && user.roles.includes("Admin"))
+    if (
+      view === "contact" &&
+      user.roles.some((role) => ["Admin", "PlatformAdmin"].includes(role))
+    )
       navigate("/admin?tab=contacts", { replace: true });
   }, [navigate, user, view]);
   const requestedClientTab = new URLSearchParams(location.search).get("tab");
@@ -220,7 +240,9 @@ export default function App() {
               <AuthCheckingPlaceholder />
             ) : isAuthenticated &&
               user?.roles.some((role) =>
-                ["HelpDeskAgent", "Expert", "Admin"].includes(role),
+                ["HelpDeskAgent", "Expert", "Admin", "PlatformAdmin"].includes(
+                  role,
+                ),
               ) ? (
               <StaffDashboardPage
                 onNavigate={go}
@@ -283,6 +305,23 @@ export default function App() {
                   new URLSearchParams(location.search).get("org") ?? undefined
                 }
               />
+            ) : isAuthenticated ? (
+              <ClientDashboardPage
+                onNavigate={go}
+                initialTab={clientInitialTab}
+                initialTicketId={
+                  new URLSearchParams(location.search).get("ticket") ??
+                  undefined
+                }
+              />
+            ) : (
+              <HelpDeskPage onNavigate={go} />
+            ))}
+          {view === "platform-admin" &&
+            (isLoading ? (
+              <AuthCheckingPlaceholder />
+            ) : isAuthenticated && user?.roles.includes("PlatformAdmin") ? (
+              <PlatformAdminDashboardPage onNavigate={go} />
             ) : isAuthenticated ? (
               <ClientDashboardPage
                 onNavigate={go}

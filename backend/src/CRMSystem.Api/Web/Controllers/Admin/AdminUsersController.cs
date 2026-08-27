@@ -21,8 +21,16 @@ public sealed class AdminUsersController(
     : ControllerBase
 {
     [HttpGet("roles")]
-    public async Task<IReadOnlyList<string>> GetRoles(CancellationToken ct) =>
-        await db.Roles.Where(role => role.Name != null).OrderBy(role => role.Name).Select(role => role.Name!).ToListAsync(ct);
+    public async Task<IReadOnlyList<string>> GetRoles(CancellationToken ct)
+    {
+        var canManagePlatformRoles = User.IsInRole(PortalRoles.PlatformAdmin);
+        return await db.Roles
+            .Where(role => role.Name != null)
+            .Where(role => role.Name != PortalRoles.PlatformAdmin || canManagePlatformRoles)
+            .OrderBy(role => role.Name)
+            .Select(role => role.Name!)
+            .ToListAsync(ct);
+    }
 
     [HttpPost("roles")]
     public async Task<IResult> CreateRole(CreateRoleRequest request)
@@ -30,6 +38,8 @@ public sealed class AdminUsersController(
         var name = request.Name.Trim();
         if (name.Length < 2 || name.Length > 40 || name.Any(ch => !char.IsLetterOrDigit(ch) && ch is not ' ' and not '-' and not '_'))
             return Results.BadRequest(new { message = "Role name must be 2-40 letters, numbers, spaces, - or _." });
+        if (IsPlatformRole(name) && !User.IsInRole(PortalRoles.PlatformAdmin))
+            return Results.Forbid();
         if (await roles.RoleExistsAsync(name)) return Results.Conflict(new { message = "Role already exists." });
         var result = await roles.CreateAsync(new IdentityRole<Guid>(name));
         return result.Succeeded
@@ -48,6 +58,8 @@ public sealed class AdminUsersController(
         var role = request.Role.Trim();
         if (firstName.Length == 0 || lastName.Length == 0 || email.Length == 0)
             return Results.BadRequest(new { message = "First name, last name and email are required." });
+        if (IsPlatformRole(role) && !User.IsInRole(PortalRoles.PlatformAdmin))
+            return Results.Forbid();
         if (!await roles.RoleExistsAsync(role))
             return Results.BadRequest(new { message = $"Unknown role {role}." });
 
@@ -227,6 +239,8 @@ public sealed class AdminUsersController(
             return Results.BadRequest(new { message = "Choose at least one role." });
         foreach (var role in requestedRoles)
         {
+            if (IsPlatformRole(role) && !User.IsInRole(PortalRoles.PlatformAdmin))
+                return Results.Forbid();
             if (!await roles.RoleExistsAsync(role))
                 return Results.BadRequest(new { message = $"Unknown role {role}." });
             if (!await users.IsInRoleAsync(user, role))
@@ -260,6 +274,8 @@ public sealed class AdminUsersController(
         var user = await FindTenantUserAsync(id);
         if (user is null)
             return Results.NotFound();
+        if (IsPlatformRole(role) && !User.IsInRole(PortalRoles.PlatformAdmin))
+            return Results.Forbid();
         var result = await users.RemoveFromRoleAsync(user, role);
         if (!result.Succeeded)
             return Results.ValidationProblem(
@@ -316,10 +332,14 @@ public sealed class AdminUsersController(
     private static int RolePriority(string role) =>
         role switch
         {
+            "PlatformAdmin" => 50,
             "Admin" => 40,
             "HelpDeskAgent" => 30,
             "Expert" => 20,
             "Client" => 10,
             _ => 5,
         };
+
+    private static bool IsPlatformRole(string role) =>
+        string.Equals(role, PortalRoles.PlatformAdmin, StringComparison.OrdinalIgnoreCase);
 }

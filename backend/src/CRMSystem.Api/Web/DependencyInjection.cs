@@ -99,8 +99,9 @@ public static class DependencyInjection
             });
         services.AddAuthorization(o =>
         {
-            o.AddPolicy("Staff", p => p.RequireRole("Admin", "HelpDeskAgent", "Expert"));
-            o.AddPolicy("Admin", p => p.RequireRole("Admin"));
+            o.AddPolicy("Staff", p => p.RequireRole(PortalRoles.Admin, PortalRoles.HelpDeskAgent, PortalRoles.Expert, PortalRoles.PlatformAdmin));
+            o.AddPolicy("Admin", p => p.RequireRole(PortalRoles.Admin, PortalRoles.PlatformAdmin));
+            o.AddPolicy("PlatformAdmin", p => p.RequireRole(PortalRoles.PlatformAdmin));
         });
         services.AddScoped<ITokenService, TokenService>();
         services.AddSingleton<ITemporaryPasswordGenerator, TemporaryPasswordGenerator>();

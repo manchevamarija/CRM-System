@@ -16,8 +16,9 @@ export type View =
   | "terms"
   | "dashboard"
   | "staff"
-  | "admin";
+  | "admin"
+  | "platform-admin";
 export type Navigate = (
   view: View,
-  options?: { tab?: string; ticket?: string },
+  options?: { tab?: string; ticket?: string; org?: string },
 ) => void;

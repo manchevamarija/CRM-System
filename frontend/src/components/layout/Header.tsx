@@ -14,7 +14,8 @@ export function Header({ language, view, onLanguage, onNavigate }: Props) {
   const [menu, setMenu] = useState(false);
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const isAdmin = user?.roles.includes("Admin") ?? false;
+  const isPlatformAdmin = user?.roles.includes("PlatformAdmin") ?? false;
+  const isAdmin = isPlatformAdmin || (user?.roles.includes("Admin") ?? false);
   const nav: { view: View; label: string }[] = [
     { view: "home", label: t("home") },
     { view: "services", label: t("services") },
@@ -74,7 +75,15 @@ export function Header({ language, view, onLanguage, onNavigate }: Props) {
         </select>
         <button
           className="portal"
-          onClick={() => onNavigate(isAdmin ? "admin" : "dashboard")}
+          onClick={() =>
+            onNavigate(
+              isPlatformAdmin
+                ? "platform-admin"
+                : isAdmin
+                  ? "admin"
+                  : "dashboard",
+            )
+          }
         >
           {user
             ? t("portal")

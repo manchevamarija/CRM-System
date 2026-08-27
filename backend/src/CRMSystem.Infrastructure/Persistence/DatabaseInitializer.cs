@@ -22,7 +22,7 @@ public static partial class DatabaseInitializer
         var environment = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
         var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        foreach (var role in new[] { "Admin", "HelpDeskAgent", "Expert", "Client" })
+        foreach (var role in PortalRoles.Seeded)
             if (!await roles.RoleExistsAsync(role))
                 await roles.CreateAsync(new IdentityRole<Guid>(role));
         var users = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
@@ -337,7 +337,23 @@ public static partial class DatabaseInitializer
                 await users.AddToRoleAsync(admin, "Admin"),
                 "The administrator role could not be assigned"
             );
+        if (
+            IsPlatformBootstrapEmail(admin.Email)
+            && !await users.IsInRoleAsync(admin, PortalRoles.PlatformAdmin)
+        )
+            ThrowIfFailed(
+                await users.AddToRoleAsync(admin, PortalRoles.PlatformAdmin),
+                "The platform administrator role could not be assigned"
+            );
         return admin;
+    }
+
+    private static bool IsPlatformBootstrapEmail(string? email)
+    {
+        var configured = Environment.GetEnvironmentVariable("PLATFORM_ADMIN_EMAIL");
+        if (string.IsNullOrWhiteSpace(configured))
+            return true;
+        return string.Equals(email, configured.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
     private static string HighestAccessLevel(IEnumerable<string> roleNames) =>
@@ -345,6 +361,7 @@ public static partial class DatabaseInitializer
             .DefaultIfEmpty("Client")
             .OrderByDescending(role => role switch
             {
+                "PlatformAdmin" => 50,
                 "Admin" => 40,
                 "HelpDeskAgent" => 30,
                 "Expert" => 20,
