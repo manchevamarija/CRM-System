@@ -169,26 +169,12 @@ START-FULL-SYSTEM.cmd
 
 ## Local Demo Accounts
 
-The following accounts are created automatically when the application runs in the Development environment.
-
-### Administrator
-
-- Email: `admin@crmsystem.mk`
-- Password: `CRMSystem!2026Admin`
-
-### Client
-
-- Email: `client@crmsystem.mk`
-- Password: `CRMSystem!2026Client`
-
-The client account includes an approved demo organization and an active subscription.
+Development/demo accounts can be bootstrapped locally, but shared usernames and passwords must not be published in this repository. Configure local credentials through environment variables or a private local settings file that is not committed.
 
 Agent, help-desk advisor, and expert accounts are not populated with shared demo
 credentials. The administrator creates each real staff account from **Users** and
 assigns the appropriate role. This keeps ownership and audit history tied to a
 named person instead of a generic mailbox.
-
-> These credentials are intended only for local development and demonstration.
 
 Production administrator credentials must be provided through the following environment variables:
 
