@@ -74,20 +74,8 @@ public sealed class ClientCrmController(PortalDbContext db, IHubContext<CrmHub> 
     [HttpDelete("my-requests/{id:guid}/services/{serviceId:guid}")]
     public async Task<IResult> RemoveService(Guid id, Guid serviceId, CancellationToken ct)
     {
-        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)) return Results.Unauthorized();
-        var item = await db.ContactRequests.SingleOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
-        if (item is null) return Results.NotFound();
-        var services = JsonSerializer.Deserialize<List<CrmServiceItem>>(item.ServiceItemsJson, JsonOptions) ?? [];
-        var removed = services.FirstOrDefault(service => service.Id == serviceId);
-        if (removed is null) return Results.NotFound();
-        services.Remove(removed);
-        item.ServiceItemsJson = JsonSerializer.Serialize(services.Select((service, index) => service with { Order = index }), JsonOptions);
-        item.SelectedServices = JsonSerializer.Serialize(services.Select(service => service.Name));
-        var admins = await db.UserRoles.Join(db.Roles.Where(r => r.Name == "Admin"), ur => ur.RoleId, r => r.Id, (ur, _) => ur.UserId).ToListAsync(ct);
-        foreach (var adminId in admins) db.Notifications.Add(new Notification { RecipientUserId = adminId, Type = "ClientCrmServiceRemoved", Subject = $"Клиент отстрани услуга: {removed.Name}", Body = $"<p>{item.ContactName} ја отстрани услугата <strong>{System.Net.WebUtility.HtmlEncode(removed.Name)}</strong> од CRM барањето.</p>", ActionUrl = "/admin?tab=contacts" });
-        await db.SaveChangesAsync(ct);
-        await crmHub.Clients.User(userId.ToString()).SendAsync("CrmUpdated", new { item.Id }, ct);
-        return Results.NoContent();
+        await Task.CompletedTask;
+        return Results.Forbid();
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
