@@ -1,0 +1,339 @@
+.admin-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+.approval {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.approval > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+.approval small {
+  color: #78898c;
+}
+.approval button {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: white;
+}
+.approval .approve {
+  background: #e1f3e8;
+  color: #087e69;
+}
+.approval .reject {
+  color: #a64a4a;
+}
+.contact-request-card {
+  display: block;
+  padding: 0;
+}
+.contact-request-card > .contact-request-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 20px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  padding: 16px 20px;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.contact-request-card > .contact-request-summary:hover {
+  background: #f8faf9;
+}
+.contact-request-summary b,
+.contact-request-summary small {
+  grid-column: 1;
+}
+.contact-request-summary small {
+  overflow-wrap: anywhere;
+}
+.contact-request-open-label {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--brand-red);
+  font-weight: 700;
+}
+.contact-request-actions {
+  display: none;
+}
+.contact-request-actions[hidden] {
+  display: none !important;
+}
+.contact-request-overlay {
+  position: fixed;
+  z-index: 99;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 7vh 24px;
+  background: rgba(15, 24, 29, 0.42);
+}
+.contact-request-detail {
+  position: relative;
+  z-index: 100;
+  width: min(1480px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 44px;
+  box-shadow: 0 22px 70px rgba(15, 24, 29, 0.28);
+}
+.contact-request-detail > h2 {
+  margin-top: 24px;
+  padding-right: 0;
+}
+.contact-dma-label {
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  z-index: 3;
+  max-width: calc(100% - 180px);
+  text-align: right;
+}
+.contact-detail-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0 26px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8faf9;
+}
+.contact-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.contact-status-actions {
+  grid-column: 1 / -1;
+  min-height: 0;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.contact-status-actions .contact-action-label {
+  flex: 0 0 auto;
+}
+.contact-status-actions .contact-action-buttons {
+  justify-content: flex-end;
+}
+
+.client-crm-card h2 {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+}
+
+.crm-success {
+  min-height: auto;
+  padding: 36px 5vw 52px;
+}
+
+.crm-success .success-mark {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 14px;
+  font-size: 26px;
+}
+
+.crm-success > h1 {
+  margin-top: 12px;
+  margin-bottom: 16px;
+  font-size: clamp(40px, 4.4vw, 60px);
+}
+
+.crm-success > .lead {
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.crm-success .request-reference {
+  margin-bottom: 22px;
+  padding-block: 16px;
+}
+
+.crm-success .success-service-summary {
+  margin-top: 0;
+  margin-bottom: 24px;
+  padding-block: 18px;
+}
+
+.crm-success .crm-timeline {
+  margin-top: 18px;
+  margin-bottom: 26px;
+}
+
+.crm-success > .actions {
+  justify-content: center;
+  margin-top: 0;
+}
+
+.admin-overview-dashboard {
+  display: grid;
+  gap: 24px;
+}
+
+.crm-statistics-panel {
+  padding: 12px 20px 22px;
+  background: #fff;
+  border: 1px solid #dfe1e3;
+  border-radius: 10px;
+  box-shadow: 0 12px 34px rgba(20, 23, 28, 0.05);
+}
+
+.crm-statistics-panel .list-head {
+  align-items: flex-start;
+  margin: 0 0 18px;
+  padding: 0;
+}
+
+.crm-statistics-panel .list-head > div {
+  text-align: left;
+}
+
+.crm-statistics-panel .kicker {
+  display: block;
+  margin: 0;
+  text-align: left;
+}
+
+.crm-statistics-panel h2 {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.crm-statistics-panel p {
+  margin: 0;
+  color: #71787f;
+}
+
+.crm-pipeline-stats {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(115px, 1fr));
+  border: 1px solid #e3e4e5;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.crm-pipeline-stats article {
+  min-height: 145px;
+  padding: 18px;
+  display: grid;
+  align-content: space-between;
+  border-right: 1px solid #e3e4e5;
+}
+
+.crm-pipeline-stats article:last-child {
+  border-right: 0;
+}
+
+.crm-pipeline-stats article > div {
+  display: grid;
+  gap: 8px;
+}
+
+.crm-pipeline-stats i {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #23657a;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 6px 14px rgba(35, 101, 122, 0.2);
+  font:
+    700 9px "IBM Plex Mono",
+    monospace;
+  font-style: normal;
+}
+
+.crm-pipeline-stats span {
+  min-height: 32px;
+  color: #596168;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.crm-pipeline-stats b {
+  font-size: 32px;
+}
+
+.crm-pipeline-stats small {
+  color: #8b9095;
+}
+
+.admin-business-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-business-stats article {
+  min-height: 150px;
+  padding: 22px;
+  display: grid;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #dfe1e3;
+  border-radius: 8px;
+}
+
+.admin-business-stats article > span {
+  color: #687078;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.admin-business-stats article > b {
+  align-self: end;
+  font-size: 30px;
+}
+
+.admin-business-stats article > small {
+  color: #83898f;
+}
+
+@media (max-width: 1050px) {
+  .admin-business-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.contact-action-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #6e7e83;
+}
+.contact-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

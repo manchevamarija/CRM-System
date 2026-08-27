@@ -1,0 +1,437 @@
+.meeting-change-form h4,
+.meeting-change-form label {
+  margin: 0;
+}
+.meeting-change-form .action-row .primary {
+  width: auto;
+  min-width: 190px;
+  margin: 0;
+  border-color: var(--brand-red);
+  background: var(--brand-red);
+  color: #fff;
+}
+.meeting-change-form .action-row .secondary {
+  width: auto;
+  margin: 0;
+}
+.meeting-card > .secondary,
+.meeting-card > .reject {
+  margin-top: 14px;
+  margin-right: 8px;
+}
+.report-export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+.report-export-item {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.report-export-item > b {
+  display: block;
+  text-transform: capitalize;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}
+.meeting-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.account-change-list,
+.account-change-admin {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+.subscriptions-workspace .account-change-admin {
+  display: none;
+}
+.change-requests-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+.change-requests-workspace > div > :not(.account-change-admin),
+.change-requests-workspace > div:nth-child(2) {
+  display: none;
+}
+.change-requests-workspace .account-change-admin {
+  max-width: 980px;
+}
+.account-change-item {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.account-change-item h3,
+.account-change-item p {
+  margin: 8px 0;
+}
+.account-change-item > .secondary {
+  width: fit-content;
+  margin: 0;
+}
+.account-change-decision {
+  display: grid;
+  gap: 10px;
+}
+.account-change-decision .action-row {
+  margin: 0;
+}
+
+.account-change-apply {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.account-change-apply select {
+  min-width: 240px;
+}
+.meeting-summary-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.meeting-summary-head,
+.meeting-edit-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.meeting-summary-card h3 {
+  margin: 16px 0 8px;
+}
+.meeting-summary-card > p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0 0 16px;
+  color: var(--muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.meeting-summary-type {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.meeting-summary-details {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+.meeting-summary-details > div {
+  min-width: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+.meeting-summary-details dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+.meeting-summary-details dd {
+  overflow-wrap: anywhere;
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+.meeting-edit-button {
+  width: 100%;
+  margin: 0;
+}
+.meeting-edit-overlay {
+  position: fixed;
+  z-index: 99;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 5vh 24px;
+  background: rgba(15, 24, 29, 0.42);
+}
+.meeting-edit-dialog {
+  width: min(760px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 28px;
+  box-shadow: 0 22px 70px rgba(15, 24, 29, 0.28);
+}
+.meeting-edit-heading {
+  margin-bottom: 22px;
+}
+.meeting-edit-heading h2 {
+  margin: 8px 0 0;
+}
+.meeting-dialog-close {
+  width: auto;
+  margin: 0;
+}
+@media (max-width: 700px) {
+  .meeting-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .meeting-edit-overlay {
+    padding: 12px;
+  }
+  .meeting-edit-dialog {
+    max-height: calc(100vh - 24px);
+    padding: 20px;
+  }
+  .meeting-edit-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+.workspace-form fieldset {
+  border: 1px solid var(--line);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.workspace-form legend {
+  font-weight: 700;
+  padding: 0 8px;
+}
+.dma form h2 {
+  margin: 20px 0 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.list-head,
+.ticket {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  gap: 20px;
+}
+.list-head {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.list-head .secondary {
+  white-space: normal;
+  max-width: 220px;
+  text-align: center;
+  flex: 0 0 auto;
+}
+.list-head h2 {
+  font-size: 18px;
+}
+.ticket-list-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.ticket-list-heading h2 {
+  margin: 0;
+}
+.ticket-count {
+  color: #738488;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.calendar-help {
+  display: block;
+  max-width: 620px;
+  color: #738488;
+  line-height: 1.45;
+}
+.list-head button {
+  border: 0;
+  background: none;
+  color: var(--green);
+}
+.ticket > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+.ticket small,
+.ticket > span:nth-last-child(2) {
+  color: #7a8b8e;
+  font-size: 12px;
+}
+.tag {
+  font-size: 10px !important;
+  font-weight: 700;
+  padding: 6px 8px;
+}
+.tag.blue {
+  background: #dceee9;
+  color: #087c6c;
+}
+.tag.amber {
+  background: #f4edcd;
+  color: #867010;
+}
+.tag.status-new {
+  background: #23657a;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff;
+}
+.tag.status-progress {
+  background: #b98500;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff;
+}
+.tag.status-complete {
+  background: #12805c;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff;
+}
+footer {
+  background: #0b2933;
+  color: #adc0c4;
+  padding: 55px 7vw;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  align-items: center;
+  gap: 30px;
+}
+.invert {
+  color: white;
+}
+.invert img {
+  filter: brightness(0) invert(1);
+}
+.invert .mark {
+  background: var(--lime);
+  color: var(--ink) !important;
+}
+footer div:nth-of-type(2) {
+  display: flex;
+  gap: 20px;
+}
+footer button {
+  color: #b9c9cc;
+}
+footer p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+footer small {
+  font-size: 11px;
+}
+@media (max-width: 1100px) {
+  .hero-network {
+    display: none;
+  }
+  .hero-copy {
+    width: min(100%, 820px);
+  }
+  .hero h1 {
+    max-width: 760px;
+  }
+}
+.admin-org-create {
+  margin-bottom: 22px;
+}
+.admin-org-create .list-head {
+  margin-bottom: 18px;
+}
+.admin-org-create-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 12px;
+}
+.admin-org-create-grid input,
+.admin-org-create-grid select {
+  min-height: 48px;
+  padding: 11px 13px;
+  border: 1px solid #ccd7db;
+  border-radius: 7px;
+  background: #fff;
+}
+.admin-org-create-grid select[name="clientUserId"] {
+  grid-column: span 2;
+}
+@media (max-width: 950px) {
+  .admin-org-create-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .admin-org-create-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-org-create-grid select[name="clientUserId"] {
+    grid-column: auto;
+  }
+}
+.report-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 14px;
+  margin: 0 0 22px;
+}
+.report-metric-grid article {
+  padding: 22px;
+  border: 1px solid #dce4e7;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #fff, #f5f8f9);
+  display: grid;
+  gap: 8px;
+}
+.report-metric-grid span {
+  color: #687980;
+  font-size: 12px;
+}
+.report-metric-grid b {
+  color: #173f5f;
+  font-size: 26px;
+}
+.report-metric-grid .metric-alert {
+  border-color: #d8c99e;
+  background: #f7f8f3;
+}
+.report-metric-grid .metric-alert b {
+  color: #9a6b19;
+}
+.report-bars {
+  display: grid;
+  gap: 11px;
+  margin: 12px 0 18px;
+}
+.report-bar > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+.report-bar i {
+  display: block;
+  height: 7px;
+  border-radius: 20px;
+  background: #e7edef;
+  overflow: hidden;
+}
+.report-bar i span {
+  display: block;
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #23657a, #c58b2a);
+}
+@media (max-width: 850px) {
+  .report-metric-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 540px) {
+  .report-metric-grid {
+    grid-template-columns: 1fr;
+  }
+}

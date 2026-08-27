@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/src/">
+    <Project Path="backend/src/CRMSystem.Api/CRMSystem.Api.csproj" />
+    <Project Path="backend/src/CRMSystem.Application/CRMSystem.Application.csproj" />
+    <Project Path="backend/src/CRMSystem.Domain/CRMSystem.Domain.csproj" />
+    <Project Path="backend/src/CRMSystem.Infrastructure/CRMSystem.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/tests/">
+    <Project Path="backend/tests/CRMSystem.Infrastructure.Tests/CRMSystem.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>

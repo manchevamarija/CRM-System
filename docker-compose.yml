@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: crm_system
+      POSTGRES_USER: crm_system
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crm_system_dev}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm_system"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  api:
+    build:
+      context: ./backend/src
+      dockerfile: CRMSystem.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Brand__Id: ${BRAND_ID:-crm}
+      Brand__Name: ${BRAND_NAME:-CRM System}
+      Brand__LegalName: ${BRAND_LEGAL_NAME:-CRM System}
+      Brand__PrimaryColor: ${BRAND_PRIMARY:-#23657a}
+      Brand__AccentColor: ${BRAND_ACCENT:-#c58b2a}
+      Brand__SupportEmail: ${BRAND_SUPPORT_EMAIL:-support@crm-system.mk}
+      ConnectionStrings__Portal: Host=postgres;Database=crm_system;Username=crm_system;Password=${POSTGRES_PASSWORD:-crm_system_dev}
+    ports: ["8080:8080"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_BRAND_ID: ${BRAND_ID:-crm}
+        VITE_BRAND_NAME: ${BRAND_NAME:-CRM System}
+        VITE_BRAND_LEGAL_NAME: ${BRAND_LEGAL_NAME:-CRM System}
+        VITE_BRAND_PRIMARY: ${BRAND_PRIMARY:-#23657a}
+        VITE_BRAND_ACCENT: ${BRAND_ACCENT:-#c58b2a}
+        VITE_BRAND_SURFACE: ${BRAND_SURFACE:-#f4f8f8}
+        VITE_BRAND_WEBSITE: ${BRAND_WEBSITE:-https://crm-system.mk}
+        VITE_BRAND_SUPPORT_EMAIL: ${BRAND_SUPPORT_EMAIL:-support@crm-system.mk}
+    ports: ["3000:80"]
+    depends_on: [api]
+volumes:
+  postgres_data:

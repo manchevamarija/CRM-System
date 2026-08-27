@@ -1,0 +1,381 @@
+.admin-ticket-create {
+  margin: 20px 24px;
+}
+
+.list-head .ticket-create-toggle {
+  border: 1px solid var(--brand-red);
+  background: #fff;
+  color: var(--brand-red);
+  box-shadow: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.list-head .ticket-create-toggle:hover {
+  background: var(--brand-blush);
+  color: #1c5267;
+  transform: none;
+}
+
+.page > .success > h1 {
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+@media (max-width: 850px) {
+  .ticket-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Exact cart header alignment: icon left, title centered, count right. */
+.shop-layout .service-cart > .cart-heading {
+  width: 100%;
+  min-height: 86px;
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 10px;
+}
+
+.shop-layout .service-cart > .cart-heading > span:nth-child(2) {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-heading > i {
+  justify-self: end;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.shop-layout .service-cart > .cart-items,
+.shop-layout .service-cart .empty-cart,
+.shop-layout .service-cart > .cart-note {
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-footer {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  padding-inline: 20px;
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-footer > span {
+  grid-column: 2;
+  justify-self: center;
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-footer > strong {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+}
+
+.shop-layout .service-cart > .cart-next {
+  position: relative;
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-next > span {
+  position: absolute;
+  right: 16px;
+}
+
+/* Light, welcoming contact hero */
+.crm-intake .intake-hero {
+  color: #1a1d22;
+  background:
+    radial-gradient(
+      circle at 87% 18%,
+      rgba(255, 204, 41, 0.2),
+      transparent 23%
+    ),
+    radial-gradient(
+      circle at 12% 90%,
+      rgba(35, 101, 122, 0.08),
+      transparent 25%
+    ),
+    linear-gradient(135deg, #ffffff 0%, #faf8f3 100%);
+  border-bottom: 1px solid #e8e5de;
+}
+
+.crm-intake .intake-hero .kicker {
+  color: #1c5267;
+}
+
+.crm-intake .intake-hero h1 {
+  color: #191c21;
+}
+
+.crm-intake .intake-hero h1 em {
+  color: #23657a;
+}
+
+.crm-intake .intake-hero > div > p {
+  color: #596269;
+}
+
+.crm-intake .intake-promises {
+  color: #4d565d;
+}
+
+.crm-intake .intake-promises span::first-letter {
+  color: #23657a;
+}
+
+.crm-intake .intake-hero > aside {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #e2ded5;
+  box-shadow: 0 20px 55px rgba(35, 31, 25, 0.09);
+  backdrop-filter: blur(12px);
+}
+
+.crm-intake .intake-hero > aside > small {
+  color: #1c5267;
+}
+
+.crm-intake .intake-hero > aside > div {
+  border-top-color: #ebe7df;
+}
+
+.crm-intake .intake-hero > aside i {
+  color: #23657a;
+}
+
+.crm-intake .intake-hero > aside span {
+  color: #697178;
+}
+
+.crm-intake .intake-hero > aside b {
+  color: #1c2025;
+}
+
+.shop-layout .service-cart > .cart-items {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-items > .empty-cart {
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+}
+
+.shop-layout .service-cart > .cart-items > .empty-cart > p,
+.shop-layout .service-cart > .cart-items > .empty-cart > small {
+  width: 100%;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.success-service-summary {
+  width: min(740px, 100%);
+  margin: -12px auto 36px;
+  padding: 22px 26px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #dedfdf;
+  border-radius: 8px;
+}
+
+.success-service-summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.success-service-summary > div > span {
+  padding: 8px 11px;
+  color: #32383e;
+  background: #f7f7f5;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.success-service-summary i {
+  margin-right: 4px;
+  color: #16834b;
+  font-style: normal;
+}
+
+.admin-crm-services {
+  padding: 30px;
+}
+
+.admin-crm-services form {
+  min-height: 86px;
+  padding: 16px 0;
+  gap: 14px;
+}
+
+.admin-crm-services form > div > b {
+  font-size: 15px;
+}
+
+.admin-crm-services input,
+.admin-crm-services select,
+.admin-crm-services form > button {
+  min-height: 50px;
+  padding: 12px 14px;
+  font-size: 14px;
+  border-radius: 7px;
+}
+
+.admin-crm-services form > button {
+  min-width: 105px;
+  font-weight: 700;
+}
+
+.crm-success > h1 {
+  width: min(920px, 100%);
+  max-width: 920px;
+  margin: 18px auto 24px;
+  padding-inline: 16px;
+  text-align: center;
+  font-size: clamp(42px, 5vw, 68px);
+  line-height: 1.05;
+  letter-spacing: -2.5px;
+  overflow-wrap: anywhere;
+}
+
+.shop-layout .service-cart > .cart-items.has-items {
+  width: 100%;
+  display: block;
+  padding: 8px 20px;
+  text-align: left;
+}
+
+.shop-layout .service-cart > .cart-items.has-items > .cart-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
+  justify-items: stretch;
+  align-items: center;
+  text-align: left;
+}
+
+.shop-layout .service-cart > .cart-items.has-items > .cart-item > b {
+  justify-self: start;
+  text-align: left;
+}
+
+.shop-layout .service-cart > .cart-items.has-items > .cart-item > button {
+  justify-self: end;
+}
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.action-row button {
+  border: 1px solid #b9c9c4;
+  background: white;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.action-row .primary {
+  background: var(--brand-red);
+  border-color: var(--brand-red);
+  color: #fff;
+}
+.action-row .primary:hover {
+  background: #1c5267;
+  border-color: #1c5267;
+}
+.action-row .secondary {
+  background: transparent;
+  color: var(--ink);
+}
+.change-request-form .action-row .primary {
+  width: auto;
+  min-width: 210px;
+  margin: 0;
+  padding: 13px 24px;
+  border: 1px solid var(--brand-red);
+  border-radius: 4px;
+  background: var(--brand-red);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(35, 101, 122, 0.16);
+}
+.change-request-form .action-row .primary:hover {
+  background: #1c5267;
+  color: #fff;
+}
+.change-request-form .action-row .secondary {
+  width: auto;
+  margin: 0;
+  border-radius: 4px;
+}
+.meeting-change-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.crm-add-service {
+  margin-top: 18px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  border: 1px dashed #9fb2ba;
+  border-radius: 10px;
+  background: #f7fafb;
+}
+.crm-add-service div {
+  display: grid;
+  gap: 4px;
+}
+.crm-add-service small {
+  color: #66777e;
+}
+.crm-add-service input {
+  min-height: 46px;
+  padding: 11px 13px;
+  border: 1px solid #cbd5d9;
+  border-radius: 6px;
+}
+.crm-add-service .form-error {
+  grid-column: 1/-1;
+  margin: 0;
+}
+.admin-crm-services .admin-add-service {
+  grid-template-columns: minmax(180px, 1fr) minmax(220px, 2fr) auto;
+  border: 1px dashed #9fb2ba;
+  border-radius: 8px;
+  margin: 12px 0 20px;
+  background: #eef5f6;
+}
+@media (max-width: 760px) {
+  .crm-add-service,
+  .admin-crm-services .admin-add-service {
+    grid-template-columns: 1fr;
+  }
+}
