@@ -2,7 +2,7 @@
 
 CRM System is a multilingual web platform that combines a public service portal and help-desk system with a complete client relationship and service-delivery workflow. Public content, client accounts, organizations, subscriptions, tickets, meetings, documents, notifications, reporting, and CRM intake are maintained in one application.
 
-The repository is the shared implementation for BAU, DIGITMAK, VEZILKA and HPC. Branding is tenant-driven; application code and business workflows remain reusable. Contact requests support one-record inter-centre handover with immutable transfer history, preserved services/documents/reference, and a localised e-mail/PDF confirmation. A rendered example is available at [docs/samples/CRM-handover-sample.pdf](docs/samples/CRM-handover-sample.pdf). The production model is one shared database with enforced tenant isolation for all tenant-owned modules. See [docs/multi-brand.md](docs/multi-brand.md) and [ADR 0001](docs/adr/0001-shared-database-tenancy.md).
+The repository is the shared implementation for BAU, DIGITMAK, VEZILKA and HPC. Branding is tenant-driven; application code and business workflows remain reusable. Contact requests support one-record inter-centre handover with immutable transfer history, preserved services/documents/reference, and a localised e-mail/PDF confirmation. Official confirmation and handover document templates are stored in [output/pdf](output/pdf). The production model is one shared database with enforced tenant isolation for all tenant-owned modules. See [docs/multi-brand.md](docs/multi-brand.md) and [ADR 0001](docs/adr/0001-shared-database-tenancy.md).
 
 ## System Functionality
 
