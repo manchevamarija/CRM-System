@@ -6,6 +6,7 @@ using CRMSystem.Infrastructure.Persistence;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using CRMSystem.Application.Realtime;
+using static CRMSystem.Api.Web.Controllers.Client.ClientSupport;
 
 namespace CRMSystem.Api.Web.Controllers.Client;
 
@@ -64,7 +65,7 @@ public sealed class ClientCrmController(PortalDbContext db, IHubContext<CrmHub> 
         services.Add(new CrmServiceItem(Guid.NewGuid(), name, "Selected", null, null, null, services.Count));
         item.ServiceItemsJson = JsonSerializer.Serialize(services, JsonOptions);
         item.SelectedServices = JsonSerializer.Serialize(services.Select(x => x.Name));
-        var admins = await db.UserRoles.Join(db.Roles.Where(r => r.Name == "Admin"), ur => ur.RoleId, r => r.Id, (ur, _) => ur.UserId).ToListAsync(ct);
+        var admins = await TenantAdminUserIdsAsync(db, ct);
         foreach (var adminId in admins) db.Notifications.Add(new Notification { RecipientUserId = adminId, Type = "ClientCrmServiceAdded", Subject = $"Клиент додаде услуга: {name}", Body = $"<p>{item.ContactName} додаде <strong>{System.Net.WebUtility.HtmlEncode(name)}</strong> во барањето CRM-{item.Id.ToString("N")[..8].ToUpperInvariant()}.</p>", ActionUrl = "/admin?tab=contacts" });
         await db.SaveChangesAsync(ct);
         await crmHub.Clients.User(userId.ToString()).SendAsync("CrmUpdated", new { item.Id }, ct);

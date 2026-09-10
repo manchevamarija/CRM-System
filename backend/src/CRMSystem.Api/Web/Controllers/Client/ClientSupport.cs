@@ -68,14 +68,7 @@ internal static class ClientSupport
         CancellationToken ct = default
     )
     {
-        var adminIds = await db
-            .UserRoles.Join(
-                db.Roles.Where(role => role.Name == "Admin"),
-                userRole => userRole.RoleId,
-                role => role.Id,
-                (userRole, _) => userRole.UserId
-            )
-            .ToListAsync(ct);
+        var adminIds = await TenantAdminUserIdsAsync(db, ct);
         foreach (var adminId in adminIds)
             db.Notifications.Add(
                 new Notification
@@ -87,5 +80,26 @@ internal static class ClientSupport
                     ActionUrl = actionUrl,
                 }
             );
+    }
+
+    internal static async Task<IReadOnlyList<Guid>> TenantAdminUserIdsAsync(
+        PortalDbContext db,
+        CancellationToken ct = default
+    )
+    {
+        var tenantMemberIds = db.UserTenantMemberships.Select(membership => membership.UserId);
+        var membershipAdmins = db
+            .UserTenantMemberships.Where(membership => membership.AccessLevel == PortalRoles.Admin)
+            .Select(membership => membership.UserId);
+        var roleAdmins = db
+            .UserRoles.Join(
+                db.Roles.Where(role => role.Name == PortalRoles.Admin),
+                userRole => userRole.RoleId,
+                role => role.Id,
+                (userRole, _) => userRole.UserId
+            )
+            .Where(userId => tenantMemberIds.Contains(userId));
+
+        return await membershipAdmins.Union(roleAdmins).ToListAsync(ct);
     }
 }

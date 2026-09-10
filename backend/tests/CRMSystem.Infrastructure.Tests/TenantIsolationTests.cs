@@ -1,7 +1,9 @@
 using CRMSystem.Application.Tenancy;
 using CRMSystem.Domain.Entities;
 using CRMSystem.Infrastructure.Persistence;
+using CRMSystem.Infrastructure.Persistence.Repositories;
 using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -151,6 +153,43 @@ public sealed class TenantIsolationTests
         await using var bauRead = database.Context("bau");
         Assert.True(await hpcRead.UserTenantMemberships.AnyAsync(x => x.UserId == userId));
         Assert.False(await bauRead.UserTenantMemberships.AnyAsync(x => x.UserId == userId));
+    }
+
+    [Fact]
+    public async Task Admin_notification_recipients_are_tenant_admin_members()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var digitmakAdmin = Guid.NewGuid();
+        var hpcAdmin = Guid.NewGuid();
+        var legacyDigitmakAdmin = Guid.NewGuid();
+        var adminRole = Guid.NewGuid();
+
+        await using (var setup = database.Context("digitmak"))
+        {
+            setup.Users.AddRange(
+                new AppUser { Id = digitmakAdmin, UserName = "digitmak-admin@example.test", Email = "digitmak-admin@example.test" },
+                new AppUser { Id = legacyDigitmakAdmin, UserName = "legacy-admin@example.test", Email = "legacy-admin@example.test" },
+                new AppUser { Id = hpcAdmin, UserName = "hpc-admin@example.test", Email = "hpc-admin@example.test" }
+            );
+            setup.Roles.Add(new IdentityRole<Guid>("Admin") { Id = adminRole, NormalizedName = "ADMIN" });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakAdmin, AccessLevel = "Admin" });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = legacyDigitmakAdmin, AccessLevel = "Staff" });
+            setup.UserRoles.Add(new IdentityUserRole<Guid> { UserId = legacyDigitmakAdmin, RoleId = adminRole });
+            await setup.SaveChangesAsync();
+        }
+
+        await using (var hpc = database.Context("hpc"))
+        {
+            hpc.UserTenantMemberships.Add(new UserTenantMembership { UserId = hpcAdmin, AccessLevel = "Admin" });
+            await hpc.SaveChangesAsync();
+        }
+
+        await using var digitmak = database.Context("digitmak");
+        var recipients = await new ContactRequestRepository(digitmak).GetAdminUserIdsAsync(CancellationToken.None);
+
+        Assert.Contains(digitmakAdmin, recipients);
+        Assert.Contains(legacyDigitmakAdmin, recipients);
+        Assert.DoesNotContain(hpcAdmin, recipients);
     }
 
     private sealed class TestDatabase : IAsyncDisposable

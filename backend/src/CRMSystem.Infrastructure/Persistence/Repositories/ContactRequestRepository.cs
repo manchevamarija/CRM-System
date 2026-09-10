@@ -8,12 +8,16 @@ public sealed class ContactRequestRepository(PortalDbContext db) : IContactReque
 {
     public async Task<IReadOnlyList<Guid>> GetAdminUserIdsAsync(CancellationToken cancellationToken) =>
         await db
+            .UserTenantMemberships.Where(membership => membership.AccessLevel == PortalRoles.Admin)
+            .Select(membership => membership.UserId)
+            .Union(db
             .UserRoles.Join(
-                db.Roles.Where(role => role.Name == "Admin"),
+                db.Roles.Where(role => role.Name == PortalRoles.Admin),
                 userRole => userRole.RoleId,
                 role => role.Id,
                 (userRole, _) => userRole.UserId
             )
+            .Where(userId => db.UserTenantMemberships.Any(membership => membership.UserId == userId)))
             .ToListAsync(cancellationToken);
 
     public async Task<(Guid? UserId, Guid? OrganizationId)> ResolveAssociationAsync(string email, string organizationName, CancellationToken cancellationToken)
