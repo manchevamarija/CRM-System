@@ -7,19 +7,7 @@ namespace CRMSystem.Infrastructure.Persistence.Repositories;
 public sealed class ContactRequestRepository(PortalDbContext db) : IContactRequestRepository
 {
     public async Task<IReadOnlyList<Guid>> GetAdminUserIdsAsync(CancellationToken cancellationToken) =>
-        await db
-            .UserTenantMemberships.Where(membership =>
-                PortalRoles.TenantStaff.Contains(membership.AccessLevel))
-            .Select(membership => membership.UserId)
-            .Union(db
-            .UserRoles.Join(
-                db.Roles.Where(role => role.Name != null && PortalRoles.TenantStaff.Contains(role.Name)),
-                userRole => userRole.RoleId,
-                role => role.Id,
-                (userRole, _) => userRole.UserId
-            )
-            .Where(userId => db.UserTenantMemberships.Any(membership => membership.UserId == userId)))
-            .ToListAsync(cancellationToken);
+        await StaffNotificationRecipients.GetAsync(db, cancellationToken);
 
     public async Task<(Guid? UserId, Guid? OrganizationId)> ResolveAssociationAsync(string email, string organizationName, CancellationToken cancellationToken)
     {

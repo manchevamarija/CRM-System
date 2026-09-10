@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CRMSystem.Application.Tenancy;
 using CRMSystem.Infrastructure.Persistence;
+using System.Text.Json;
 
 namespace CRMSystem.Api.Web.Controllers.PlatformAdmin;
 
@@ -34,6 +35,10 @@ public sealed class PlatformAdminOverviewController(
                 0,
                 0,
                 0,
+                0,
+                0,
+                0,
+                0,
                 0))
             .ToDictionary(tenant => tenant.Id, StringComparer.OrdinalIgnoreCase);
 
@@ -57,12 +62,55 @@ public sealed class PlatformAdminOverviewController(
             .GroupBy(request => request.OwnerTenantId)
             .Select(group => new TenantCount(group.Key, group.Count()))
             .ToListAsync(ct);
+        var contactRows = await db.ContactRequests
+            .IgnoreQueryFilters()
+            .Select(request => new
+            {
+                request.OwnerTenantId,
+                request.Status,
+                request.CreatedAt,
+                request.UpdatedAt,
+                request.ServiceItemsJson,
+            })
+            .ToListAsync(ct);
+        var crmMetrics = contactRows
+            .GroupBy(request => request.OwnerTenantId)
+            .ToDictionary(
+                group => group.Key,
+                group =>
+                {
+                    var completed = group.Where(request => request.Status == "Served").ToArray();
+                    var serviceRows = group.SelectMany(request => ParseServices(request.ServiceItemsJson)).ToArray();
+                    var overdue = serviceRows.Count(service =>
+                        service.Deadline < DateTimeOffset.UtcNow && service.Status != "Completed");
+                    return new TenantCrmMetrics(
+                        completed.Length,
+                        completed.Length == 0
+                            ? 0
+                            : Math.Round(completed.Average(request =>
+                                Math.Max(0, (request.UpdatedAt - request.CreatedAt).TotalDays)), 1),
+                        serviceRows.Where(service => service.Price is not null).Sum(service => service.Price!.Value),
+                        overdue);
+                },
+                StringComparer.OrdinalIgnoreCase);
 
         var rows = tenantRows.Values
             .Select(tenant => tenant with
             {
                 Organizations = Value(organizationCounts, tenant.Id),
                 ContactRequests = Value(contactCounts, tenant.Id),
+                CompletedContactRequests = crmMetrics.TryGetValue(tenant.Id, out var metrics)
+                    ? metrics.CompletedContactRequests
+                    : 0,
+                AverageDaysToServe = crmMetrics.TryGetValue(tenant.Id, out metrics)
+                    ? metrics.AverageDaysToServe
+                    : 0,
+                TotalServiceValue = crmMetrics.TryGetValue(tenant.Id, out metrics)
+                    ? metrics.TotalServiceValue
+                    : 0,
+                OverdueServices = crmMetrics.TryGetValue(tenant.Id, out metrics)
+                    ? metrics.OverdueServices
+                    : 0,
                 Tickets = Value(ticketCounts, tenant.Id),
                 Meetings = Value(meetingCounts, tenant.Id),
                 ActiveSubscriptions = Value(subscriptionCounts, tenant.Id),
@@ -97,7 +145,11 @@ public sealed class PlatformAdminOverviewController(
                 rows.Sum(row => row.ActiveSubscriptions),
                 rows.Sum(row => row.StaffMemberships),
                 await db.Users.CountAsync(ct),
-                platformAdmins.Count),
+                platformAdmins.Count,
+                rows.Sum(row => row.CompletedContactRequests),
+                rows.Length == 0 ? 0 : Math.Round(rows.Average(row => row.AverageDaysToServe), 1),
+                rows.Sum(row => row.TotalServiceValue),
+                rows.Sum(row => row.OverdueServices)),
             recentAudit);
     }
 
@@ -178,7 +230,15 @@ public sealed class PlatformAdminOverviewController(
     private static int Value(IReadOnlyList<TenantCount> counts, string tenantId) =>
         counts.FirstOrDefault(count => count.TenantId.Equals(tenantId, StringComparison.OrdinalIgnoreCase))?.Count ?? 0;
 
+    private static IReadOnlyList<PlatformServiceRow> ParseServices(string json)
+    {
+        try { return JsonSerializer.Deserialize<PlatformServiceRow[]>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web)) ?? []; }
+        catch { return []; }
+    }
+
     private sealed record TenantCount(string TenantId, int Count);
+    private sealed record TenantCrmMetrics(int CompletedContactRequests, double AverageDaysToServe, decimal TotalServiceValue, int OverdueServices);
+    private sealed record PlatformServiceRow(string Name, string Status, decimal? Price, DateTimeOffset? Deadline);
 }
 
 public sealed record PlatformOverviewResponse(
@@ -196,6 +256,10 @@ public sealed record PlatformTenantRow(
     string AccentColor,
     int Organizations,
     int ContactRequests,
+    int CompletedContactRequests,
+    double AverageDaysToServe,
+    decimal TotalServiceValue,
+    int OverdueServices,
     int Tickets,
     int Meetings,
     int ActiveSubscriptions,
@@ -211,7 +275,11 @@ public sealed record PlatformTotals(
     int ActiveSubscriptions,
     int StaffMemberships,
     int Users,
-    int PlatformAdmins
+    int PlatformAdmins,
+    int CompletedContactRequests,
+    double AverageDaysToServe,
+    decimal TotalServiceValue,
+    int OverdueServices
 );
 
 public sealed record PlatformAuditRow(

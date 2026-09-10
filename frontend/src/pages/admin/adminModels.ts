@@ -144,6 +144,10 @@ export type TenantDescriptor = {
 export type PlatformTenant = TenantDescriptor & {
   organizations: number;
   contactRequests: number;
+  completedContactRequests: number;
+  averageDaysToServe: number;
+  totalServiceValue: number;
+  overdueServices: number;
   tickets: number;
   meetings: number;
   activeSubscriptions: number;
@@ -159,6 +163,10 @@ export type PlatformTotals = {
   staffMemberships: number;
   users: number;
   platformAdmins: number;
+  completedContactRequests: number;
+  averageDaysToServe: number;
+  totalServiceValue: number;
+  overdueServices: number;
 };
 export type PlatformAudit = {
   id: string;
@@ -205,6 +213,19 @@ export type CrmServiceItem = {
   price?: number;
   deadline?: string;
   assignedAgentId?: string;
+  internalNote?: string;
+};
+export type ContactActivity = {
+  id: number;
+  action: string;
+  entityType: string;
+  entityId: string;
+  actorUserId?: string;
+  actorName?: string;
+  oldValuesJson?: string;
+  newValuesJson?: string;
+  metadataJson?: string;
+  createdAt: string;
 };
 export type Audit = {
   id: string;

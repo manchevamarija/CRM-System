@@ -21,7 +21,14 @@ public sealed partial class AdminContactRequestsController
         var index = services.FindIndex(service => service.Id == serviceId);
         if (index < 0) return Results.NotFound();
         var previous = services[index];
-        services[index] = services[index] with { Status = request.Status, Price = request.Price, Deadline = request.Deadline, AssignedAgentId = request.AssignedAgentId };
+        services[index] = services[index] with
+        {
+            Status = request.Status,
+            Price = request.Price,
+            Deadline = request.Deadline,
+            AssignedAgentId = request.AssignedAgentId,
+            InternalNote = request.InternalNote?.Trim()
+        };
         item.ServiceItemsJson = JsonSerializer.Serialize(services, JsonOptions);
         item.Status = services.Count > 0 && services.All(service => service.Status == "Completed")
             ? "Served"
@@ -39,6 +46,17 @@ public sealed partial class AdminContactRequestsController
             Body = $"<p>Услугата <strong>{System.Net.WebUtility.HtmlEncode(services[index].Name)}</strong> е ажурирана. Статус: {System.Net.WebUtility.HtmlEncode(request.Status)}.</p>" + ((previous.Price != request.Price || (previous.Status != "Confirmed" && request.Status == "Confirmed")) ? ContactRequestService.BuildPdfAttachment(item, services.Select(service => $"{service.Name} · {StatusLabel(service.Status)}{(service.Price is null ? "" : $" · {service.Price:0.00} €")}"), "CRM-azurirana-potvrda", true, tenantContext.Current.Name) : ""),
             ActionUrl = "/portal?tab=crm",
         });
+        db.AuditLogs.Add(new AuditLog
+        {
+            ActorUserId = User.UserId(),
+            Action = previous.AssignedAgentId == request.AssignedAgentId
+                ? "ContactRequestServiceUpdated"
+                : "ContactRequestServiceAssigned",
+            EntityType = "CrmServiceItem",
+            EntityId = $"{item.Id}:{serviceId}",
+            OldValuesJson = JsonSerializer.Serialize(previous, JsonOptions),
+            NewValuesJson = JsonSerializer.Serialize(services[index], JsonOptions),
+        });
         await db.SaveChangesAsync();
         if (item.UserId is { } userId) await crmHub.Clients.User(userId.ToString()).SendAsync("CrmUpdated", new { item.Id, serviceId });
         return Results.Ok(item);
@@ -54,7 +72,7 @@ public sealed partial class AdminContactRequestsController
         var services = JsonSerializer.Deserialize<List<CrmServiceItem>>(item.ServiceItemsJson, JsonOptions) ?? [];
         if (services.Any(service => service.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
             return Results.Conflict(new { message = "This service is already part of the request." });
-        var service = new CrmServiceItem(Guid.NewGuid(), name, "Selected", null, null, null, services.Count);
+        var service = new CrmServiceItem(Guid.NewGuid(), name, "Selected", null, null, null, services.Count, null);
         services.Add(service);
         item.ServiceItemsJson = JsonSerializer.Serialize(services, JsonOptions);
         item.SelectedServices = JsonSerializer.Serialize(services.Select(x => x.Name));
@@ -130,6 +148,7 @@ public sealed partial class AdminContactRequestsController
         _ => status,
     };
 
-    private sealed record CrmServiceItem(Guid Id, string Name, string Status, decimal? Price, DateTimeOffset? Deadline, Guid? AssignedAgentId, int Order);
+    private sealed record CrmServiceItem(Guid Id, string Name, string Status, decimal? Price, DateTimeOffset? Deadline, Guid? AssignedAgentId, int Order, string? InternalNote);
     public sealed record AddContactServiceRequest(string Name);
+    public sealed record ContactServiceItemUpdateRequest(string Status, decimal? Price, DateTimeOffset? Deadline, Guid? AssignedAgentId, string? InternalNote);
 }

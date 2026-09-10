@@ -204,6 +204,37 @@ public sealed class TenantIsolationTests
         Assert.DoesNotContain(client, recipients);
     }
 
+    [Fact]
+    public async Task Staff_notification_recipients_follow_configured_role_settings()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var digitmakAdmin = Guid.NewGuid();
+        var digitmakHelpDesk = Guid.NewGuid();
+        var digitmakExpert = Guid.NewGuid();
+
+        await using (var setup = database.Context("digitmak"))
+        {
+            setup.UserTenantMemberships.AddRange(
+                new UserTenantMembership { UserId = digitmakAdmin, AccessLevel = PortalRoles.Admin },
+                new UserTenantMembership { UserId = digitmakHelpDesk, AccessLevel = PortalRoles.HelpDeskAgent },
+                new UserTenantMembership { UserId = digitmakExpert, AccessLevel = PortalRoles.Expert }
+            );
+            setup.SystemSettings.Add(new SystemSetting
+            {
+                Key = StaffNotificationRecipients.RolesSettingKey,
+                Value = $"{PortalRoles.Admin},{PortalRoles.Expert}",
+            });
+            await setup.SaveChangesAsync();
+        }
+
+        await using var digitmak = database.Context("digitmak");
+        var recipients = await StaffNotificationRecipients.GetAsync(digitmak, CancellationToken.None);
+
+        Assert.Contains(digitmakAdmin, recipients);
+        Assert.Contains(digitmakExpert, recipients);
+        Assert.DoesNotContain(digitmakHelpDesk, recipients);
+    }
+
     private sealed class TestDatabase : IAsyncDisposable
     {
         private readonly SqliteConnection connection;

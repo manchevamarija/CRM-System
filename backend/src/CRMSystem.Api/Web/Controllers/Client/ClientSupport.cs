@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using CRMSystem.Infrastructure.Persistence;
+using CRMSystem.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRMSystem.Api.Web.Controllers.Client;
@@ -85,22 +86,5 @@ internal static class ClientSupport
     internal static async Task<IReadOnlyList<Guid>> TenantStaffUserIdsAsync(
         PortalDbContext db,
         CancellationToken ct = default
-    )
-    {
-        var tenantMemberIds = db.UserTenantMemberships.Select(membership => membership.UserId);
-        var membershipStaff = db
-            .UserTenantMemberships.Where(membership =>
-                PortalRoles.TenantStaff.Contains(membership.AccessLevel))
-            .Select(membership => membership.UserId);
-        var roleStaff = db
-            .UserRoles.Join(
-                db.Roles.Where(role => role.Name != null && PortalRoles.TenantStaff.Contains(role.Name)),
-                userRole => userRole.RoleId,
-                role => role.Id,
-                (userRole, _) => userRole.UserId
-            )
-            .Where(userId => tenantMemberIds.Contains(userId));
-
-        return await membershipStaff.Union(roleStaff).ToListAsync(ct);
-    }
+    ) => await StaffNotificationRecipients.GetAsync(db, ct);
 }

@@ -197,6 +197,7 @@ export function useAdminCommands(props: Props) {
             price: data.get("price") ? Number(data.get("price")) : null,
             deadline: data.get("deadline") || null,
             assignedAgentId: data.get("assignedAgentId") || null,
+            internalNote: data.get("internalNote") || null,
           }),
         },
       );
@@ -387,10 +388,11 @@ export function useAdminCommands(props: Props) {
   const saveSetting = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const roles = data.getAll("roles").map(String).filter(Boolean);
     await call(`/api/admin/settings/${data.get("key")}`, {
       method: "PUT",
       body: JSON.stringify({
-        value: data.get("value"),
+        value: roles.length > 0 ? roles.join(",") : String(data.get("value") ?? ""),
         description: data.get("description"),
       }),
     });

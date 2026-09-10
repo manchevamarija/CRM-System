@@ -40,6 +40,13 @@ export type CrmServiceItem = {
   deadline?: string;
   assignedAgentId?: string;
 };
+export type CrmTimelineItem = {
+  id: number;
+  action: string;
+  entityType: string;
+  entityId: string;
+  createdAt: string;
+};
 
 export type CrmRequest = {
   id: string;

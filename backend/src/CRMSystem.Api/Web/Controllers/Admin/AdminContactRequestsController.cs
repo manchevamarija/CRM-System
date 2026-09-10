@@ -139,6 +139,29 @@ public sealed partial class AdminContactRequestsController(PortalDbContext db, I
             .ToListAsync(ct));
     }
 
+    [HttpGet("contact-requests/{id:guid}/activity")]
+    public async Task<IResult> GetActivity(Guid id, CancellationToken ct)
+    {
+        if (await FindVisibleAsync(id) is null) return Results.NotFound();
+        var rows = await ContactActivityRows(id, includeInternalComments: true, ct);
+        return Results.Ok(rows);
+    }
+
+    [HttpPost("contact-requests/{id:guid}/internal-comments")]
+    public async Task<IResult> AddInternalComment(Guid id, MessageRequest request, CancellationToken ct)
+    {
+        if (await FindOwnedAsync(id) is null) return Results.NotFound();
+        var body = request.Body?.Trim();
+        if (string.IsNullOrWhiteSpace(body))
+            return Results.BadRequest(new { message = "Internal comment is required." });
+
+        var audit = Audit(User, "ContactRequestInternalComment", nameof(ContactRequest), id);
+        audit.MetadataJson = JsonSerializer.Serialize(new { body }, JsonOptions);
+        db.AuditLogs.Add(audit);
+        await db.SaveChangesAsync(ct);
+        return Results.Created($"/api/admin/contact-requests/{id}/activity", audit);
+    }
+
     [HttpGet("contact-requests/{id:guid}/confirmation-pdf")]
     public async Task<IResult> GetConfirmationPdf(Guid id, CancellationToken ct)
     {
@@ -212,7 +235,18 @@ public sealed partial class AdminContactRequestsController(PortalDbContext db, I
         item.Status = "Assigned";
         item.UserId ??= await db.Users.Where(user => user.Email != null && user.Email.ToLower() == item.Email.ToLower()).Select(user => (Guid?)user.Id).FirstOrDefaultAsync();
         db.Notifications.Add(StatusEmail(item, "Assigned"));
-        db.AuditLogs.Add(Audit(User, "ContactRequestAssigned", nameof(ContactRequest), item.Id));
+        db.AuditLogs.Add(Audit(
+            User,
+            "ContactRequestAssigned",
+            nameof(ContactRequest),
+            item.Id,
+            null,
+            JsonSerializer.Serialize(new
+            {
+                request.AgentId,
+                request.HelpDeskAdvisorId,
+                request.ExpertId,
+            }, JsonOptions)));
         await db.SaveChangesAsync();
         if (item.UserId is { } clientId)
             await crmHub.Clients.User(clientId.ToString()).SendAsync("CrmUpdated", new { item.Id, item.Status });
@@ -420,4 +454,62 @@ public sealed partial class AdminContactRequestsController(PortalDbContext db, I
     private static string Reference(ContactRequest item) =>
         $"CRM-{item.Id.ToString("N")[..8].ToUpperInvariant()}";
 
+    private async Task<IReadOnlyList<ContactActivityRow>> ContactActivityRows(
+        Guid requestId,
+        bool includeInternalComments,
+        CancellationToken ct)
+    {
+        var requestEntityId = requestId.ToString();
+        var serviceEntityPrefix = $"{requestId}:";
+        var actions = await db.AuditLogs.AsNoTracking()
+            .Where(log =>
+                (log.EntityType == nameof(ContactRequest) && log.EntityId == requestEntityId)
+                || (log.EntityType == "CrmServiceItem" && log.EntityId.StartsWith(serviceEntityPrefix))
+                || (log.EntityType == "CrmServiceItem" && log.NewValuesJson != null && log.NewValuesJson.Contains(requestEntityId)))
+            .Where(log => includeInternalComments || log.Action != "ContactRequestInternalComment")
+            .OrderByDescending(log => log.CreatedAt)
+            .Take(80)
+            .ToListAsync(ct);
+        var actorIds = actions
+            .Select(action => action.ActorUserId)
+            .OfType<Guid>()
+            .Distinct()
+            .ToArray();
+        var actors = await db.Users
+            .Where(user => actorIds.Contains(user.Id))
+            .Select(user => new { user.Id, user.Email, user.FirstName, user.LastName })
+            .ToDictionaryAsync(
+                user => user.Id,
+                user => string.IsNullOrWhiteSpace($"{user.FirstName} {user.LastName}".Trim())
+                    ? user.Email ?? user.Id.ToString()
+                    : $"{user.FirstName} {user.LastName}".Trim(),
+                ct);
+
+        return actions.Select(action => new ContactActivityRow(
+            action.Id,
+            action.Action,
+            action.EntityType,
+            action.EntityId,
+            action.ActorUserId,
+            action.ActorUserId is { } actorId && actors.TryGetValue(actorId, out var actor)
+                ? actor
+                : null,
+            action.OldValuesJson,
+            action.NewValuesJson,
+            action.MetadataJson,
+            action.CreatedAt)).ToList();
+    }
+
 }
+
+public sealed record ContactActivityRow(
+    long Id,
+    string Action,
+    string EntityType,
+    string EntityId,
+    Guid? ActorUserId,
+    string? ActorName,
+    string? OldValuesJson,
+    string? NewValuesJson,
+    string? MetadataJson,
+    DateTimeOffset CreatedAt);

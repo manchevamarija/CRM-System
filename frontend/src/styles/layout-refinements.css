@@ -42,6 +42,129 @@
     grid-template-columns: 1fr;
   }
 }
+
+.notification-setting-card {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, minmax(120px, auto)) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #dce7e9;
+  border-radius: 10px;
+  background: #fff;
+}
+.notification-setting-card > div {
+  display: grid;
+  gap: 4px;
+}
+.notification-setting-card small {
+  color: #687980;
+}
+.notification-setting-card label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #173f5f;
+  font-size: 13px;
+  font-weight: 700;
+}
+.notification-setting-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #267a82;
+}
+.contact-activity-panel {
+  align-content: start;
+}
+.contact-activity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+.contact-activity-list {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #e0e8ea;
+  border-radius: 10px;
+  background: #fff;
+}
+.contact-activity-list h4 {
+  margin: 0;
+  color: #173f5f;
+  font-size: 14px;
+}
+.contact-activity-list p {
+  margin: 0;
+  color: #687980;
+  font-size: 13px;
+}
+.contact-activity-list article {
+  display: grid;
+  gap: 4px;
+  padding-left: 12px;
+  border-left: 3px solid #8bbac1;
+}
+.contact-activity-list article b {
+  color: #102a3b;
+  font-size: 13px;
+}
+.contact-activity-list article span,
+.contact-activity-list article small {
+  color: #687980;
+  font-size: 12px;
+}
+.admin-service-card .admin-service-note {
+  grid-column: 1 / -2;
+}
+.admin-service-card textarea {
+  min-height: 76px !important;
+  padding: 9px 11px !important;
+  border: 1px solid #cbd9dd !important;
+  border-radius: 7px !important;
+  font: inherit;
+  resize: vertical;
+}
+.client-crm-activity {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e8ea;
+}
+.client-crm-activity > p {
+  margin: 0;
+  color: #687980;
+}
+.client-crm-activity article {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f3;
+}
+.client-crm-activity article b {
+  color: #102a3b;
+}
+.client-crm-activity article small {
+  color: #687980;
+  white-space: nowrap;
+}
+
+@media (max-width: 950px) {
+  .notification-setting-card,
+  .contact-activity-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-service-card .admin-service-note {
+    grid-column: 1 / -1;
+  }
+  .client-crm-activity article {
+    display: grid;
+  }
+}
 /* Client-owned contact requests and admin content management */
 .dashboard-feedback {
   margin: 0 0 18px;

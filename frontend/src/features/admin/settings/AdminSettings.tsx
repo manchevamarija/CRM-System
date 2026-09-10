@@ -12,6 +12,13 @@ type Props = {
 
 export function AdminSettings({ t, language, settings, onSave }: Props) {
   const retention = settings.find((item) => item.key === "DataRetentionDays");
+  const notificationRoles = new Set(
+    (settings.find((item) => item.key === "StaffNotificationRoles")?.value ||
+      "Admin,HelpDeskAgent,Expert")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean),
+  );
   const currentYears = Math.max(
     1,
     Math.round(Number(retention?.value || 730) / 365),
@@ -33,6 +40,12 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
           active: "Активно",
           cleanup: "Автоматско чистење",
           notices: "Системски известувања",
+          notificationTitle: "Кој добива клиентски известувања",
+          notificationDescription:
+            "Одберете кои staff улоги ќе добиваат известувања за нови CRM барања, клиентски услуги, состаноци и промени.",
+          admin: "Администратор",
+          helpDesk: "Help desk советник",
+          expert: "Експерт",
         }
       : language === "sq"
         ? {
@@ -50,6 +63,12 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             active: "Aktive",
             cleanup: "Pastrimi automatik",
             notices: "Njoftimet e sistemit",
+            notificationTitle: "Kush merr njoftime nga klientët",
+            notificationDescription:
+              "Zgjidhni cilat role të staff marrin njoftime për kërkesa CRM, shërbime, takime dhe ndryshime.",
+            admin: "Administrator",
+            helpDesk: "Këshilltar help desk",
+            expert: "Ekspert",
           }
         : {
             intro:
@@ -66,6 +85,12 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             active: "Active",
             cleanup: "Automatic cleanup",
             notices: "System notifications",
+            notificationTitle: "Who receives client notifications",
+            notificationDescription:
+              "Choose which staff roles receive notifications for new CRM requests, client services, meetings and changes.",
+            admin: "Administrator",
+            helpDesk: "Help desk advisor",
+            expert: "Expert",
           };
 
   return (
@@ -113,6 +138,46 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             </div>
           </form>
           <section className="settings-automation-summary">
+            <form className="notification-setting-card" onSubmit={onSave}>
+              <input type="hidden" name="key" value="StaffNotificationRoles" />
+              <input
+                type="hidden"
+                name="description"
+                value={copy.notificationDescription}
+              />
+              <div>
+                <b>{copy.notificationTitle}</b>
+                <small>{copy.notificationDescription}</small>
+              </div>
+              <label>
+                <input
+                  type="checkbox"
+                  name="roles"
+                  value="Admin"
+                  defaultChecked={notificationRoles.has("Admin")}
+                />
+                <span>{copy.admin}</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="roles"
+                  value="HelpDeskAgent"
+                  defaultChecked={notificationRoles.has("HelpDeskAgent")}
+                />
+                <span>{copy.helpDesk}</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="roles"
+                  value="Expert"
+                  defaultChecked={notificationRoles.has("Expert")}
+                />
+                <span>{copy.expert}</span>
+              </label>
+              <button className="settings-save">{t.save}</button>
+            </form>
             <div>
               <span>✓</span>
               <p>

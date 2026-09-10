@@ -4,6 +4,7 @@ import { api } from "../../../api";
 import type { workspaceCopy } from "../../../content/workspaceCopy";
 import type {
   Contact,
+  ContactActivity,
   CrmServiceItem,
   Organization,
   StaffUser,
@@ -77,6 +78,14 @@ export function AdminContactDetail(props: Props) {
   );
   const [tenants, setTenants] = useState<TenantDescriptor[]>([]);
   const [transfers, setTransfers] = useState<ContactRequestTransfer[]>([]);
+  const [activity, setActivity] = useState<ContactActivity[]>([]);
+  const loadActivity = async () => {
+    setActivity(
+      await api<ContactActivity[]>(
+        `/api/admin/contact-requests/${contactDetail.id}/activity`,
+      ),
+    );
+  };
   useEffect(() => {
     let active = true;
     Promise.all([
@@ -84,16 +93,21 @@ export function AdminContactDetail(props: Props) {
       api<ContactRequestTransfer[]>(
         `/api/admin/contact-requests/${contactDetail.id}/transfers`,
       ),
+      api<ContactActivity[]>(
+        `/api/admin/contact-requests/${contactDetail.id}/activity`,
+      ),
     ])
-      .then(([tenantItems, transferItems]) => {
+      .then(([tenantItems, transferItems, activityItems]) => {
         if (!active) return;
         setTenants(tenantItems);
         setTransfers(transferItems);
+        setActivity(activityItems);
       })
       .catch(() => {
         if (!active) return;
         setTenants([]);
         setTransfers([]);
+        setActivity([]);
       });
     return () => {
       active = false;
@@ -220,7 +234,10 @@ export function AdminContactDetail(props: Props) {
             </span>
             <form
               className="contact-assignment-form"
-              onSubmit={(event) => assignContact(event, contactDetail.id)}
+              onSubmit={async (event) => {
+                await assignContact(event, contactDetail.id);
+                await loadActivity();
+              }}
             >
               <label>
                 <span>{language === "mk" ? "Агент" : "Agent"}</span>
@@ -415,6 +432,78 @@ export function AdminContactDetail(props: Props) {
               </div>
             )}
           </div>
+          <div className="contact-action-group contact-action-wide contact-activity-panel">
+            <span className="contact-action-label">
+              {crmText(
+                "Историја и внатрешни белешки",
+                "History and internal notes",
+                "Historia dhe shënimet e brendshme",
+              )}
+            </span>
+            <form
+              className="inline-form contact-reply-form"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                const form = event.currentTarget;
+                const data = new FormData(form);
+                const ok = await call(
+                  `/api/admin/contact-requests/${contactDetail.id}/internal-comments`,
+                  {
+                    method: "POST",
+                    body: JSON.stringify({ body: data.get("body") }),
+                  },
+                  crmText(
+                    "Внатрешната белешка е зачувана.",
+                    "Internal note saved.",
+                    "Shënimi i brendshëm u ruajt.",
+                  ),
+                );
+                if (ok) {
+                  form.reset();
+                  await loadActivity();
+                }
+              }}
+            >
+              <input
+                name="body"
+                required
+                placeholder={crmText(
+                  "Додај внатрешна белешка само за staff",
+                  "Add an internal staff-only note",
+                  "Shto shënim të brendshëm vetëm për staff",
+                )}
+              />
+              <button className="approve">{t.save}</button>
+            </form>
+            <div className="contact-activity-grid">
+              <ActivityList
+                title={crmText("Timeline", "Timeline", "Timeline")}
+                empty={crmText(
+                  "Нема активности.",
+                  "No activity yet.",
+                  "Ende nuk ka aktivitet.",
+                )}
+                items={activity}
+                language={language}
+              />
+              <ActivityList
+                title={crmText(
+                  "Assignment history",
+                  "Assignment history",
+                  "Historia e caktimeve",
+                )}
+                empty={crmText(
+                  "Нема доделувања.",
+                  "No assignments yet.",
+                  "Ende nuk ka caktime.",
+                )}
+                items={activity.filter((item) =>
+                  item.action.includes("Assigned"),
+                )}
+                language={language}
+              />
+            </div>
+          </div>
           <ContactRequestDocuments
             contactRequestId={contactDetail.id}
             language={language}
@@ -542,7 +631,9 @@ export function AdminContactDetail(props: Props) {
               className="admin-service-card"
               key={service.id}
               onSubmit={(event) =>
-                updateContactService(event, contactDetail, service)
+                void updateContactService(event, contactDetail, service).then(
+                  loadActivity,
+                )
               }
             >
               <div className="admin-service-card-head">
@@ -615,6 +706,25 @@ export function AdminContactDetail(props: Props) {
                   ))}
                 </select>
               </label>
+              <label className="admin-service-note">
+                <span>
+                  {crmText(
+                    "Внатрешна белешка",
+                    "Internal note",
+                    "Shënim i brendshëm",
+                  )}
+                </span>
+                <textarea
+                  name="internalNote"
+                  rows={3}
+                  defaultValue={service.internalNote ?? ""}
+                  placeholder={crmText(
+                    "Следен чекор, ризик или договор со клиентот",
+                    "Next step, risk or client agreement",
+                    "Hapi tjetër, rreziku ose marrëveshja me klientin",
+                  )}
+                />
+              </label>
               <button className="approve">
                 {crmText("Зачувај промени", "Save changes", "Ruaj ndryshimet")}
               </button>
@@ -664,4 +774,74 @@ export function AdminContactDetail(props: Props) {
       </section>
     </div>
   );
+}
+
+function ActivityList({
+  title,
+  empty,
+  items,
+  language,
+}: {
+  title: string;
+  empty: string;
+  items: ContactActivity[];
+  language: Language;
+}) {
+  return (
+    <section className="contact-activity-list">
+      <h4>{title}</h4>
+      {!items.length && <p>{empty}</p>}
+      {items.slice(0, 8).map((item) => (
+        <article key={`${title}-${item.id}`}>
+          <b>{activityLabel(item, language)}</b>
+          <span>{activityDetail(item)}</span>
+          <small>
+            {item.actorName ? `${item.actorName} · ` : ""}
+            {new Date(item.createdAt).toLocaleString()}
+          </small>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function activityLabel(item: ContactActivity, language: Language) {
+  const text = (mk: string, en: string, sq: string) =>
+    language === "en" ? en : language === "sq" ? sq : mk;
+  const labels: Record<string, string> = {
+    ContactRequestCreated: text("Креирано барање", "Request created", "Kërkesa u krijua"),
+    ContactRequestUpdated: text("Променет статус", "Status updated", "Statusi u përditësua"),
+    ContactRequestAssigned: text("Доделен тим", "Team assigned", "Ekipi u caktua"),
+    ContactRequestHandled: text("Барањето е услужено", "Request served", "Kërkesa u shërbye"),
+    ContactRequestTransferred: text("Предадено на друг центар", "Handed over to another centre", "Dorëzuar te qendër tjetër"),
+    ContactRequestResponded: text("Испратен одговор", "Response sent", "Përgjigjja u dërgua"),
+    ContactRequestServiceAdded: text("Додадена услуга", "Service added", "Shërbimi u shtua"),
+    ContactRequestServiceAddedByClient: text("Клиент додаде услуга", "Client added service", "Klienti shtoi shërbim"),
+    ContactRequestServiceRemoved: text("Отстранета услуга", "Service removed", "Shërbimi u hoq"),
+    ContactRequestServiceUpdated: text("Ажурирана услуга", "Service updated", "Shërbimi u përditësua"),
+    ContactRequestServiceAssigned: text("Доделена услуга", "Service assigned", "Shërbimi u caktua"),
+    ContactRequestInternalComment: text("Внатрешна белешка", "Internal note", "Shënim i brendshëm"),
+  };
+  return labels[item.action] ?? item.action;
+}
+
+function activityDetail(item: ContactActivity) {
+  const metadata = parseJson(item.metadataJson);
+  const next = parseJson(item.newValuesJson);
+  if (typeof metadata?.body === "string") return metadata.body;
+  if (typeof metadata?.name === "string") return metadata.name;
+  if (typeof next?.name === "string") {
+    const parts = [next.name, next.status].filter(Boolean);
+    return parts.join(" · ");
+  }
+  return item.entityType;
+}
+
+function parseJson(value?: string) {
+  if (!value) return null;
+  try {
+    return JSON.parse(value) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
 }

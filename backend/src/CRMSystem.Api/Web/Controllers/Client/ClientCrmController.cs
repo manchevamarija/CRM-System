@@ -62,14 +62,61 @@ public sealed class ClientCrmController(PortalDbContext db, IHubContext<CrmHub> 
         if (item is null) return Results.NotFound();
         var services = JsonSerializer.Deserialize<List<CrmServiceItem>>(item.ServiceItemsJson, JsonOptions) ?? [];
         if (services.Any(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))) return Results.Conflict(new { message = "Service already added." });
-        services.Add(new CrmServiceItem(Guid.NewGuid(), name, "Selected", null, null, null, services.Count));
+        services.Add(new CrmServiceItem(Guid.NewGuid(), name, "Selected", null, null, null, services.Count, null));
         item.ServiceItemsJson = JsonSerializer.Serialize(services, JsonOptions);
         item.SelectedServices = JsonSerializer.Serialize(services.Select(x => x.Name));
         var admins = await TenantStaffUserIdsAsync(db, ct);
         foreach (var adminId in admins) db.Notifications.Add(new Notification { RecipientUserId = adminId, Type = "ClientCrmServiceAdded", Subject = $"Клиент додаде услуга: {name}", Body = $"<p>{item.ContactName} додаде <strong>{System.Net.WebUtility.HtmlEncode(name)}</strong> во барањето CRM-{item.Id.ToString("N")[..8].ToUpperInvariant()}.</p>", ActionUrl = "/admin?tab=contacts" });
+        db.AuditLogs.Add(Audit(User, "ContactRequestServiceAddedByClient", nameof(ContactRequest), id, JsonSerializer.Serialize(new { name }, JsonOptions)));
         await db.SaveChangesAsync(ct);
         await crmHub.Clients.User(userId.ToString()).SendAsync("CrmUpdated", new { item.Id }, ct);
         return Results.Ok(item);
+    }
+
+    [HttpGet("my-requests/{id:guid}/timeline")]
+    public async Task<IResult> Timeline(Guid id, CancellationToken ct)
+    {
+        if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            return Results.Unauthorized();
+        if (!await db.ContactRequests.AnyAsync(item => item.Id == id && item.UserId == userId, ct))
+            return Results.NotFound();
+
+        var requestEntityId = id.ToString();
+        var serviceEntityPrefix = $"{id}:";
+        var publicActions = new[]
+        {
+            "ContactRequestCreated",
+            "ContactRequestUpdated",
+            "ContactRequestAssigned",
+            "ContactRequestHandled",
+            "ContactRequestTransferred",
+            "ContactRequestResponded",
+            "ContactRegistrationInvited",
+            "ContactRequestServiceAdded",
+            "ContactRequestServiceRemoved",
+            "ContactRequestServiceAddedByClient",
+            "ContactRequestServiceUpdated",
+            "ContactRequestServiceAssigned",
+        };
+        var rows = await db.AuditLogs
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(log =>
+                publicActions.Contains(log.Action)
+                && ((log.EntityType == nameof(ContactRequest) && log.EntityId == requestEntityId)
+                    || (log.EntityType == "CrmServiceItem" && log.EntityId.StartsWith(serviceEntityPrefix))))
+            .OrderByDescending(log => log.CreatedAt)
+            .Take(40)
+            .Select(log => new
+            {
+                log.Id,
+                log.Action,
+                log.EntityType,
+                log.EntityId,
+                log.CreatedAt,
+            })
+            .ToListAsync(ct);
+        return Results.Ok(rows);
     }
 
     [HttpDelete("my-requests/{id:guid}/services/{serviceId:guid}")]
@@ -80,6 +127,6 @@ public sealed class ClientCrmController(PortalDbContext db, IHubContext<CrmHub> 
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-    private sealed record CrmServiceItem(Guid Id, string Name, string Status, decimal? Price, DateTimeOffset? Deadline, Guid? AssignedAgentId, int Order);
+    private sealed record CrmServiceItem(Guid Id, string Name, string Status, decimal? Price, DateTimeOffset? Deadline, Guid? AssignedAgentId, int Order, string? InternalNote);
     public sealed record AddServiceRequest(string Name);
 }

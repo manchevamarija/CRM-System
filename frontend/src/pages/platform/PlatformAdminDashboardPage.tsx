@@ -31,6 +31,10 @@ const copy = {
       activeSubscriptions: "Активни претплати",
       users: "Корисници",
       platformAdmins: "Platform admins",
+      completedContactRequests: "Услужени CRM",
+      averageDaysToServe: "Прос. денови",
+      totalServiceValue: "Вредност на услуги",
+      overdueServices: "Пробиени рокови",
     },
     tenantColumns: {
       centre: "Центар",
@@ -41,6 +45,10 @@ const copy = {
       subscriptions: "Претплати",
       staff: "Staff",
       audit: "Audit",
+      completed: "Услужени",
+      avgDays: "Прос. денови",
+      value: "Вредност",
+      overdue: "Рокови",
     },
     userColumns: {
       user: "Корисник",
@@ -75,6 +83,10 @@ const copy = {
       activeSubscriptions: "Active subscriptions",
       users: "Users",
       platformAdmins: "Platform admins",
+      completedContactRequests: "Served CRM",
+      averageDaysToServe: "Avg. days",
+      totalServiceValue: "Service value",
+      overdueServices: "Overdue services",
     },
     tenantColumns: {
       centre: "Centre",
@@ -85,6 +97,10 @@ const copy = {
       subscriptions: "Subscriptions",
       staff: "Staff",
       audit: "Audit",
+      completed: "Served",
+      avgDays: "Avg. days",
+      value: "Value",
+      overdue: "Overdue",
     },
     userColumns: {
       user: "User",
@@ -119,6 +135,10 @@ const copy = {
       activeSubscriptions: "Abonime aktive",
       users: "Përdorues",
       platformAdmins: "Platform admins",
+      completedContactRequests: "CRM të shërbyera",
+      averageDaysToServe: "Ditë mes.",
+      totalServiceValue: "Vlera e shërbimeve",
+      overdueServices: "Afate të vonuara",
     },
     tenantColumns: {
       centre: "Qendra",
@@ -129,6 +149,10 @@ const copy = {
       subscriptions: "Abonime",
       staff: "Staff",
       audit: "Audit",
+      completed: "Të shërbyera",
+      avgDays: "Ditë mes.",
+      value: "Vlera",
+      overdue: "Afate",
     },
     userColumns: {
       user: "Përdorues",
@@ -279,6 +303,10 @@ function PlatformTotalsGrid({
     ["tickets", overview.totals.tickets],
     ["meetings", overview.totals.meetings],
     ["activeSubscriptions", overview.totals.activeSubscriptions],
+    ["completedContactRequests", overview.totals.completedContactRequests],
+    ["averageDaysToServe", overview.totals.averageDaysToServe],
+    ["totalServiceValue", overview.totals.totalServiceValue],
+    ["overdueServices", overview.totals.overdueServices],
     ["users", overview.totals.users],
     ["platformAdmins", overview.totals.platformAdmins],
   ] as const;
@@ -313,6 +341,10 @@ function TenantTable({
               <th>{labels.tickets}</th>
               <th>{labels.meetings}</th>
               <th>{labels.subscriptions}</th>
+              <th>{labels.completed}</th>
+              <th>{labels.avgDays}</th>
+              <th>{labels.value}</th>
+              <th>{labels.overdue}</th>
               <th>{labels.staff}</th>
               <th>{labels.audit}</th>
             </tr>
@@ -333,6 +365,10 @@ function TenantTable({
                 <td>{tenant.tickets}</td>
                 <td>{tenant.meetings}</td>
                 <td>{tenant.activeSubscriptions}</td>
+                <td>{tenant.completedContactRequests}</td>
+                <td>{tenant.averageDaysToServe}</td>
+                <td>{tenant.totalServiceValue.toLocaleString()} €</td>
+                <td>{tenant.overdueServices}</td>
                 <td>{tenant.staffMemberships}</td>
                 <td>{tenant.auditEvents}</td>
               </tr>
