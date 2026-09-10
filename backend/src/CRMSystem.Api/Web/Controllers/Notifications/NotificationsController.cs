@@ -16,7 +16,8 @@ public sealed class NotificationsController(PortalDbContext db) : ControllerBase
         var principal = User;
         var userId = principal.UserId();
         return await db
-            .Notifications.Where(x => x.RecipientUserId == userId)
+            .Notifications.IgnoreQueryFilters()
+            .Where(x => x.RecipientUserId == userId)
             .OrderByDescending(x => x.CreatedAt)
             .Take(30)
             .Select(x => new
@@ -39,7 +40,7 @@ public sealed class NotificationsController(PortalDbContext db) : ControllerBase
         var userId = principal.UserId();
         return new
         {
-            count = await db.Notifications.CountAsync(
+            count = await db.Notifications.IgnoreQueryFilters().CountAsync(
                 x => x.RecipientUserId == userId && !x.IsRead,
                 ct
             ),
@@ -50,14 +51,12 @@ public sealed class NotificationsController(PortalDbContext db) : ControllerBase
     public async Task<IResult> MarkRead(Guid id, CancellationToken ct)
     {
         var principal = User;
-        var item = await db.Notifications.SingleOrDefaultAsync(
-            x => x.Id == id && x.RecipientUserId == principal.UserId(),
-            ct
-        );
-        if (item is null)
+        var updated = await db
+            .Notifications.IgnoreQueryFilters()
+            .Where(x => x.Id == id && x.RecipientUserId == principal.UserId())
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.IsRead, true), ct);
+        if (updated == 0)
             return Results.NotFound();
-        item.IsRead = true;
-        await db.SaveChangesAsync(ct);
         return Results.NoContent();
     }
 
@@ -66,12 +65,10 @@ public sealed class NotificationsController(PortalDbContext db) : ControllerBase
     {
         var principal = User;
         var userId = principal.UserId();
-        var unread = await db
-            .Notifications.Where(x => x.RecipientUserId == userId && !x.IsRead)
-            .ToListAsync(ct);
-        foreach (var item in unread)
-            item.IsRead = true;
-        await db.SaveChangesAsync(ct);
+        await db
+            .Notifications.IgnoreQueryFilters()
+            .Where(x => x.RecipientUserId == userId && !x.IsRead)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.IsRead, true), ct);
         return Results.NoContent();
     }
 
@@ -79,14 +76,12 @@ public sealed class NotificationsController(PortalDbContext db) : ControllerBase
     public async Task<IResult> Delete(Guid id, CancellationToken ct)
     {
         var principal = User;
-        var item = await db.Notifications.SingleOrDefaultAsync(
-            x => x.Id == id && x.RecipientUserId == principal.UserId(),
-            ct
-        );
-        if (item is null)
+        var deleted = await db
+            .Notifications.IgnoreQueryFilters()
+            .Where(x => x.Id == id && x.RecipientUserId == principal.UserId())
+            .ExecuteDeleteAsync(ct);
+        if (deleted == 0)
             return Results.NotFound();
-        db.Notifications.Remove(item);
-        await db.SaveChangesAsync(ct);
         return Results.NoContent();
     }
 }

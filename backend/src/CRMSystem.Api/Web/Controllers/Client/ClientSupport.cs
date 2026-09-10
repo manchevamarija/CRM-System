@@ -54,10 +54,10 @@ internal static class ClientSupport
     }
 
     /// <summary>
-    /// Queues one Notification per Admin user — used for events a client triggers that an
-    /// administrator needs to act on (someone requesting to join an organization, an account
-    /// change request, etc.). ActionUrl lets the admin's notification bell jump straight to
-    /// the right screen instead of them having to go hunting for the record.
+    /// Queues one Notification per tenant staff user — used for events a client triggers that
+    /// the centre team needs to act on (someone requesting to join an organization, an account
+    /// change request, etc.). ActionUrl lets the notification bell jump straight to the right
+    /// screen instead of staff having to go hunting for the record.
     /// </summary>
     internal static async Task NotifyAdminsAsync(
         PortalDbContext db,
@@ -68,7 +68,7 @@ internal static class ClientSupport
         CancellationToken ct = default
     )
     {
-        var adminIds = await TenantAdminUserIdsAsync(db, ct);
+        var adminIds = await TenantStaffUserIdsAsync(db, ct);
         foreach (var adminId in adminIds)
             db.Notifications.Add(
                 new Notification
@@ -82,24 +82,25 @@ internal static class ClientSupport
             );
     }
 
-    internal static async Task<IReadOnlyList<Guid>> TenantAdminUserIdsAsync(
+    internal static async Task<IReadOnlyList<Guid>> TenantStaffUserIdsAsync(
         PortalDbContext db,
         CancellationToken ct = default
     )
     {
         var tenantMemberIds = db.UserTenantMemberships.Select(membership => membership.UserId);
-        var membershipAdmins = db
-            .UserTenantMemberships.Where(membership => membership.AccessLevel == PortalRoles.Admin)
+        var membershipStaff = db
+            .UserTenantMemberships.Where(membership =>
+                PortalRoles.TenantStaff.Contains(membership.AccessLevel))
             .Select(membership => membership.UserId);
-        var roleAdmins = db
+        var roleStaff = db
             .UserRoles.Join(
-                db.Roles.Where(role => role.Name == PortalRoles.Admin),
+                db.Roles.Where(role => role.Name != null && PortalRoles.TenantStaff.Contains(role.Name)),
                 userRole => userRole.RoleId,
                 role => role.Id,
                 (userRole, _) => userRole.UserId
             )
             .Where(userId => tenantMemberIds.Contains(userId));
 
-        return await membershipAdmins.Union(roleAdmins).ToListAsync(ct);
+        return await membershipStaff.Union(roleStaff).ToListAsync(ct);
     }
 }

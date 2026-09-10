@@ -156,24 +156,33 @@ public sealed class TenantIsolationTests
     }
 
     [Fact]
-    public async Task Admin_notification_recipients_are_tenant_admin_members()
+    public async Task Staff_notification_recipients_are_tenant_staff_members()
     {
         await using var database = await TestDatabase.CreateAsync();
         var digitmakAdmin = Guid.NewGuid();
+        var digitmakHelpDesk = Guid.NewGuid();
+        var digitmakExpert = Guid.NewGuid();
         var hpcAdmin = Guid.NewGuid();
         var legacyDigitmakAdmin = Guid.NewGuid();
+        var client = Guid.NewGuid();
         var adminRole = Guid.NewGuid();
 
         await using (var setup = database.Context("digitmak"))
         {
             setup.Users.AddRange(
                 new AppUser { Id = digitmakAdmin, UserName = "digitmak-admin@example.test", Email = "digitmak-admin@example.test" },
+                new AppUser { Id = digitmakHelpDesk, UserName = "help-desk@example.test", Email = "help-desk@example.test" },
+                new AppUser { Id = digitmakExpert, UserName = "expert@example.test", Email = "expert@example.test" },
                 new AppUser { Id = legacyDigitmakAdmin, UserName = "legacy-admin@example.test", Email = "legacy-admin@example.test" },
+                new AppUser { Id = client, UserName = "client@example.test", Email = "client@example.test" },
                 new AppUser { Id = hpcAdmin, UserName = "hpc-admin@example.test", Email = "hpc-admin@example.test" }
             );
-            setup.Roles.Add(new IdentityRole<Guid>("Admin") { Id = adminRole, NormalizedName = "ADMIN" });
-            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakAdmin, AccessLevel = "Admin" });
+            setup.Roles.Add(new IdentityRole<Guid>(PortalRoles.Admin) { Id = adminRole, NormalizedName = "ADMIN" });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakAdmin, AccessLevel = PortalRoles.Admin });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakHelpDesk, AccessLevel = PortalRoles.HelpDeskAgent });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakExpert, AccessLevel = PortalRoles.Expert });
             setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = legacyDigitmakAdmin, AccessLevel = "Staff" });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = client, AccessLevel = PortalRoles.Client });
             setup.UserRoles.Add(new IdentityUserRole<Guid> { UserId = legacyDigitmakAdmin, RoleId = adminRole });
             await setup.SaveChangesAsync();
         }
@@ -188,8 +197,11 @@ public sealed class TenantIsolationTests
         var recipients = await new ContactRequestRepository(digitmak).GetAdminUserIdsAsync(CancellationToken.None);
 
         Assert.Contains(digitmakAdmin, recipients);
+        Assert.Contains(digitmakHelpDesk, recipients);
+        Assert.Contains(digitmakExpert, recipients);
         Assert.Contains(legacyDigitmakAdmin, recipients);
         Assert.DoesNotContain(hpcAdmin, recipients);
+        Assert.DoesNotContain(client, recipients);
     }
 
     private sealed class TestDatabase : IAsyncDisposable
