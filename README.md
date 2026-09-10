@@ -73,7 +73,9 @@ The repository is the shared implementation for BAU, DIGITMAK, VEZILKA and HPC. 
 ### Platform administration
 
 - Dedicated `PlatformAdmin` role and authorization policy for global cross-tenant operations.
-- Separate `/platform-admin` interface for centre-level totals, global users, tenant memberships, and recent audit events.
+- Separate `/platform-admin` interface for platform-wide overview metrics, centre-level totals, global users, tenant memberships, status badges, search, and CSV export.
+- Platform administrators use this area to supervise BAU, DIGITMAK, VEZILKA, and HPC from one place without replacing each centre's local administrator.
+- The global view is intended for coordination, reporting, cross-centre visibility, and user governance across the shared CRM database.
 - `/api/platform-admin/*` endpoints use explicit platform-admin authorization before reading across tenant query filters.
 - Tenant administrators remain scoped to their own centre; they cannot assign or remove the `PlatformAdmin` role.
 

@@ -71,6 +71,10 @@ const copy = {
       clear: "Исчисти",
       noResults: "Нема корисници што одговараат на пребарувањето.",
     },
+    export: {
+      tenants: "Извези центри",
+      users: "Извези корисници",
+    },
   },
   en: {
     title: "Platform Admin",
@@ -129,6 +133,10 @@ const copy = {
       placeholder: "Name, email, role or centre",
       clear: "Clear",
       noResults: "No users match your search.",
+    },
+    export: {
+      tenants: "Export centres",
+      users: "Export users",
     },
   },
   sq: {
@@ -191,6 +199,10 @@ const copy = {
       clear: "Pastro",
       noResults: "Asnjë përdorues nuk përputhet me kërkimin.",
     },
+    export: {
+      tenants: "Eksporto qendrat",
+      users: "Eksporto përdoruesit",
+    },
   },
 };
 
@@ -212,6 +224,8 @@ export function PlatformAdminDashboardPage({
     "/api/platform-admin/users",
     allowed && tab === "users",
   );
+  const tenantCount = overview.data?.tenants.length ?? 0;
+  const userCount = users.data?.length ?? overview.data?.totals.users ?? 0;
 
   if (user && !allowed)
     return (
@@ -253,14 +267,20 @@ export function PlatformAdminDashboardPage({
           className={tab === "tenants" ? "sel" : ""}
           onClick={() => setTab("tenants")}
         >
-          <span>{text.tenants}</span>
+          <span>
+            {text.tenants}
+            <small className="platform-tab-count">{tenantCount}</small>
+          </span>
           <span>›</span>
         </button>
         <button
           className={tab === "users" ? "sel" : ""}
           onClick={() => setTab("users")}
         >
-          <span>{text.users}</span>
+          <span>
+            {text.users}
+            <small className="platform-tab-count">{userCount}</small>
+          </span>
           <span>›</span>
         </button>
         <button onClick={() => onNavigate("admin")}>Admin ›</button>
@@ -297,6 +317,7 @@ export function PlatformAdminDashboardPage({
               <TenantTable
                 tenants={overview.data.tenants}
                 labels={text.tenantColumns}
+                exportLabel={text.export.tenants}
                 emptyText={text.empty.tenants}
               />
             )}
@@ -308,6 +329,7 @@ export function PlatformAdminDashboardPage({
                 labels={text.userColumns}
                 language={language}
                 search={text.search}
+                exportLabel={text.export.users}
                 loadingText={text.loading}
                 emptyText={text.empty.users}
               />
@@ -354,14 +376,26 @@ function PlatformTotalsGrid({
 function TenantTable({
   tenants,
   labels,
+  exportLabel,
   emptyText,
 }: {
   tenants: PlatformTenant[];
   labels: (typeof copy)["mk"]["tenantColumns"];
+  exportLabel: string;
   emptyText: string;
 }) {
   return (
     <section className="meeting-card platform-table-card">
+      <div className="platform-table-toolbar platform-table-toolbar-right">
+        <button
+          className="secondary platform-export-button"
+          type="button"
+          onClick={() => exportTenantsCsv(tenants, labels)}
+          disabled={tenants.length === 0}
+        >
+          {exportLabel}
+        </button>
+      </div>
       <div className="platform-table-scroll">
         <table className="platform-table">
           <thead>
@@ -462,6 +496,7 @@ function UsersTable({
   labels,
   language,
   search,
+  exportLabel,
   loadingText,
   emptyText,
 }: {
@@ -471,6 +506,7 @@ function UsersTable({
   labels: (typeof copy)["mk"]["userColumns"];
   language: Language;
   search: (typeof copy)["mk"]["search"];
+  exportLabel: string;
   loadingText: string;
   emptyText: string;
 }) {
@@ -521,6 +557,14 @@ function UsersTable({
             {search.clear}
           </button>
         )}
+        <button
+          className="secondary platform-export-button"
+          type="button"
+          onClick={() => exportUsersCsv(filteredUsers, labels, language)}
+          disabled={filteredUsers.length === 0}
+        >
+          {exportLabel}
+        </button>
       </div>
       <div className="platform-table-scroll">
         <table className="platform-table">
@@ -550,7 +594,9 @@ function UsersTable({
                     </b>
                     <small>{user.email}</small>
                   </td>
-                  <td>{labelFor(user.status, language)}</td>
+                  <td>
+                    <StatusBadge status={user.status} language={language} />
+                  </td>
                   <td>
                     {user.roles
                       .map((role) => labelFor(role, language))
@@ -564,7 +610,11 @@ function UsersTable({
                       )
                       .join(", ") || "-"}
                   </td>
-                  <td>{formatDate(user.lastLoginAt)}</td>
+                  <td>
+                    <span className="platform-date-cell">
+                      {formatDate(user.lastLoginAt)}
+                    </span>
+                  </td>
                 </tr>
               ))
             )}
@@ -588,7 +638,9 @@ function UsersTable({
               <dl>
                 <div>
                   <dt>{labels.status}</dt>
-                  <dd>{labelFor(user.status, language)}</dd>
+                  <dd>
+                    <StatusBadge status={user.status} language={language} />
+                  </dd>
                 </div>
                 <div>
                   <dt>{labels.roles}</dt>
@@ -611,7 +663,11 @@ function UsersTable({
                 </div>
                 <div>
                   <dt>{labels.lastLogin}</dt>
-                  <dd>{formatDate(user.lastLoginAt)}</dd>
+                  <dd>
+                    <span className="platform-date-cell">
+                      {formatDate(user.lastLoginAt)}
+                    </span>
+                  </dd>
                 </div>
               </dl>
             </article>
@@ -622,10 +678,111 @@ function UsersTable({
   );
 }
 
+function StatusBadge({
+  status,
+  language,
+}: {
+  status: PlatformUser["status"];
+  language: Language;
+}) {
+  return (
+    <span className={`platform-status-badge ${statusClass(status)}`}>
+      {labelFor(status, language)}
+    </span>
+  );
+}
+
 function formatDate(value?: string) {
   if (!value) return "-";
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function statusClass(status: PlatformUser["status"]) {
+  if (status === "Active") return "is-active";
+  if (status === "PendingVerification") return "is-pending";
+  return "is-muted";
+}
+
+function exportTenantsCsv(
+  tenants: PlatformTenant[],
+  labels: (typeof copy)["mk"]["tenantColumns"],
+) {
+  downloadCsv("platform-admin-centres.csv", [
+    [
+      labels.centre,
+      labels.organizations,
+      labels.contacts,
+      labels.tickets,
+      labels.meetings,
+      labels.subscriptions,
+      labels.completed,
+      labels.avgDays,
+      labels.value,
+      labels.overdue,
+      labels.staff,
+    ],
+    ...tenants.map((tenant) => [
+      tenant.name,
+      tenant.organizations,
+      tenant.contactRequests,
+      tenant.tickets,
+      tenant.meetings,
+      tenant.activeSubscriptions,
+      tenant.completedContactRequests,
+      tenant.averageDaysToServe,
+      tenant.totalServiceValue,
+      tenant.overdueServices,
+      tenant.staffMemberships,
+    ]),
+  ]);
+}
+
+function exportUsersCsv(
+  users: PlatformUser[],
+  labels: (typeof copy)["mk"]["userColumns"],
+  language: Language,
+) {
+  downloadCsv("platform-admin-users.csv", [
+    [
+      labels.user,
+      "Email",
+      labels.status,
+      labels.roles,
+      labels.memberships,
+      labels.lastLogin,
+    ],
+    ...users.map((user) => [
+      `${user.firstName} ${user.lastName}`.trim() || user.email,
+      user.email,
+      labelFor(user.status, language),
+      user.roles.map((role) => labelFor(role, language)).join(", "),
+      user.memberships
+        .map(
+          (item) => `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
+        )
+        .join(", "),
+      formatDate(user.lastLoginAt),
+    ]),
+  ]);
+}
+
+function downloadCsv(filename: string, rows: Array<Array<string | number>>) {
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\n");
+  const blob = new Blob([`\uFEFF${csv}`], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value: string | number) {
+  const text = String(value ?? "");
+  return `"${text.replaceAll('"', '""')}"`;
 }

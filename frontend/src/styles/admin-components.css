@@ -456,6 +456,22 @@ footer small {
   font-size: 15px;
   line-height: 1.6;
 }
+.platform-tab-count {
+  display: inline-grid;
+  min-width: 21px;
+  height: 21px;
+  margin-left: 8px;
+  padding: 0 6px;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf4f5;
+  color: #23657a;
+  font-size: 11px;
+  font-weight: 800;
+}
+.dashboard aside > button.sel .platform-tab-count {
+  background: #fff;
+}
 .platform-table-card {
   padding: 0;
   overflow: hidden;
@@ -467,6 +483,17 @@ footer small {
   padding: 18px;
   border-bottom: 1px solid var(--line);
   background: #fbfdfd;
+}
+.platform-table-toolbar-right {
+  justify-content: flex-end;
+}
+.platform-export-button {
+  min-height: 44px;
+  white-space: nowrap;
+}
+.platform-export-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 .platform-search {
   display: grid;
@@ -521,6 +548,37 @@ footer small {
   color: #6c7c82 !important;
   text-align: center !important;
   background: #f8fbfb;
+}
+.platform-status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid #dce7e9;
+  background: #f5f8f8;
+  color: #53666c;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+.platform-status-badge.is-active {
+  border-color: #b9dbc9;
+  background: #edf8f1;
+  color: #16724b;
+}
+.platform-status-badge.is-pending {
+  border-color: #ead7a7;
+  background: #fff8e8;
+  color: #8b6516;
+}
+.platform-date-cell {
+  display: inline-flex;
+  padding: 4px 0;
+  color: #4f666d;
+  font-size: 12px;
+  font-weight: 700;
 }
 .platform-mobile-list {
   display: none;
@@ -588,7 +646,8 @@ footer small {
     flex-direction: column;
     padding: 14px;
   }
-  .platform-table-toolbar .secondary {
+  .platform-table-toolbar .secondary,
+  .platform-export-button {
     width: 100%;
   }
   .platform-table-scroll {
