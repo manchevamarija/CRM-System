@@ -455,6 +455,7 @@ footer small {
 }
 .platform-table-scroll {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .platform-table {
   width: 100%;
@@ -478,6 +479,12 @@ footer small {
 .platform-table td {
   color: var(--ink);
   font-size: 13px;
+}
+.platform-empty-row {
+  padding: 28px 18px !important;
+  color: #6c7c82 !important;
+  text-align: center !important;
+  background: #f8fbfb;
 }
 .platform-detail-cell {
   display: grid;
@@ -505,9 +512,32 @@ footer small {
   .report-metric-grid {
     grid-template-columns: 1fr 1fr;
   }
+  .platform-metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .platform-admin .dash-main {
+    min-width: 0;
+  }
+  .platform-table-card {
+    margin-inline: -2px;
+  }
 }
 @media (max-width: 540px) {
   .report-metric-grid {
     grid-template-columns: 1fr;
+  }
+  .platform-metric-grid {
+    grid-template-columns: 1fr;
+  }
+  .platform-metric-grid article {
+    min-height: 88px;
+    padding: 16px;
+  }
+  .platform-table {
+    min-width: 900px;
+  }
+  .platform-table th,
+  .platform-table td {
+    padding: 12px 13px;
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../features/auth/useAuth";
-import type { Navigate } from "../../shared/types";
+import { labelFor } from "../../shared/labels";
+import type { Language, Navigate } from "../../shared/types";
 import { useApiResource } from "../../shared/useApiResource";
 import { usePortalLanguage } from "../../shared/usePortalLanguage";
 import type {
@@ -9,12 +10,13 @@ import type {
   PlatformUser,
 } from "../admin/adminModels";
 
-type Tab = "tenants" | "users";
+type Tab = "overview" | "tenants" | "users";
 
 const copy = {
   mk: {
     title: "Platform Admin",
     eyebrow: "Глобална администрација",
+    overview: "Преглед",
     tenants: "Центри",
     users: "Корисници",
     noAccess: "Немате пристап до platform admin.",
@@ -28,7 +30,7 @@ const copy = {
       meetings: "Состаноци",
       activeSubscriptions: "Активни претплати",
       users: "Корисници",
-      platformAdmins: "Platform admins",
+      platformAdmins: "Platform администратори",
       completedContactRequests: "Услужени CRM",
       averageDaysToServe: "Прос. денови",
       totalServiceValue: "Вредност на услуги",
@@ -41,7 +43,7 @@ const copy = {
       tickets: "Тикети",
       meetings: "Состаноци",
       subscriptions: "Претплати",
-      staff: "Staff",
+      staff: "Тим",
       completed: "Услужени",
       avgDays: "Прос. денови",
       value: "Вредност",
@@ -54,10 +56,15 @@ const copy = {
       memberships: "Центри",
       lastLogin: "Последна најава",
     },
+    empty: {
+      tenants: "Нема внесени центри за приказ.",
+      users: "Нема корисници за приказ.",
+    },
   },
   en: {
     title: "Platform Admin",
     eyebrow: "Global administration",
+    overview: "Overview",
     tenants: "Centres",
     users: "Users",
     noAccess: "You do not have platform admin access.",
@@ -97,10 +104,15 @@ const copy = {
       memberships: "Centres",
       lastLogin: "Last login",
     },
+    empty: {
+      tenants: "There are no centres to show.",
+      users: "There are no users to show.",
+    },
   },
   sq: {
     title: "Platform Admin",
     eyebrow: "Administrim global",
+    overview: "Përmbledhje",
     tenants: "Qendra",
     users: "Përdorues",
     noAccess: "Nuk keni qasje në platform admin.",
@@ -114,7 +126,7 @@ const copy = {
       meetings: "Takime",
       activeSubscriptions: "Abonime aktive",
       users: "Përdorues",
-      platformAdmins: "Platform admins",
+      platformAdmins: "Administratorë platforme",
       completedContactRequests: "CRM të shërbyera",
       averageDaysToServe: "Ditë mes.",
       totalServiceValue: "Vlera e shërbimeve",
@@ -127,7 +139,7 @@ const copy = {
       tickets: "Tiketa",
       meetings: "Takime",
       subscriptions: "Abonime",
-      staff: "Staff",
+      staff: "Ekipi",
       completed: "Të shërbyera",
       avgDays: "Ditë mes.",
       value: "Vlera",
@@ -139,6 +151,10 @@ const copy = {
       roles: "Role",
       memberships: "Qendra",
       lastLogin: "Hyrja e fundit",
+    },
+    empty: {
+      tenants: "Nuk ka qendra për t'u shfaqur.",
+      users: "Nuk ka përdorues për t'u shfaqur.",
     },
   },
 };
@@ -152,7 +168,7 @@ export function PlatformAdminDashboardPage({
   const text = copy[language];
   const { user, logout } = useAuth();
   const allowed = !!user?.roles.includes("PlatformAdmin");
-  const [tab, setTab] = useState<Tab>("tenants");
+  const [tab, setTab] = useState<Tab>("overview");
   const overview = useApiResource<PlatformOverview>(
     "/api/platform-admin/overview",
     allowed,
@@ -192,6 +208,13 @@ export function PlatformAdminDashboardPage({
           {text.logout}
         </button>
         <button
+          className={tab === "overview" ? "sel" : ""}
+          onClick={() => setTab("overview")}
+        >
+          <span>{text.overview}</span>
+          <span>›</span>
+        </button>
+        <button
           className={tab === "tenants" ? "sel" : ""}
           onClick={() => setTab("tenants")}
         >
@@ -212,9 +235,11 @@ export function PlatformAdminDashboardPage({
           <div>
             <span>{text.eyebrow}</span>
             <h1>
-              {tab === "tenants"
-                ? text.tenants
-                : text.users}
+              {tab === "overview"
+                ? text.overview
+                : tab === "tenants"
+                  ? text.tenants
+                  : text.users}
             </h1>
           </div>
         </div>
@@ -224,11 +249,17 @@ export function PlatformAdminDashboardPage({
         {overview.loading && <p>{text.loading}</p>}
         {overview.data && (
           <>
-            <PlatformTotalsGrid overview={overview.data} labels={text.totals} />
+            {tab === "overview" && (
+              <PlatformTotalsGrid
+                overview={overview.data}
+                labels={text.totals}
+              />
+            )}
             {tab === "tenants" && (
               <TenantTable
                 tenants={overview.data.tenants}
                 labels={text.tenantColumns}
+                emptyText={text.empty.tenants}
               />
             )}
             {tab === "users" && (
@@ -237,7 +268,9 @@ export function PlatformAdminDashboardPage({
                 loading={users.loading}
                 error={users.error}
                 labels={text.userColumns}
+                language={language}
                 loadingText={text.loading}
+                emptyText={text.empty.users}
               />
             )}
           </>
@@ -282,9 +315,11 @@ function PlatformTotalsGrid({
 function TenantTable({
   tenants,
   labels,
+  emptyText,
 }: {
   tenants: PlatformTenant[];
   labels: (typeof copy)["mk"]["tenantColumns"];
+  emptyText: string;
 }) {
   return (
     <section className="meeting-card platform-table-card">
@@ -306,28 +341,36 @@ function TenantTable({
             </tr>
           </thead>
           <tbody>
-            {tenants.map((tenant) => (
-              <tr key={tenant.id}>
-                <td className="platform-detail-cell">
-                  <span
-                    className="tenant-swatch"
-                    style={{ background: tenant.primaryColor }}
-                  />
-                  <b>{tenant.name}</b>
-                  <small>{tenant.id}</small>
+            {tenants.length === 0 ? (
+              <tr>
+                <td className="platform-empty-row" colSpan={11}>
+                  {emptyText}
                 </td>
-                <td>{tenant.organizations}</td>
-                <td>{tenant.contactRequests}</td>
-                <td>{tenant.tickets}</td>
-                <td>{tenant.meetings}</td>
-                <td>{tenant.activeSubscriptions}</td>
-                <td>{tenant.completedContactRequests}</td>
-                <td>{tenant.averageDaysToServe}</td>
-                <td>{tenant.totalServiceValue.toLocaleString()} €</td>
-                <td>{tenant.overdueServices}</td>
-                <td>{tenant.staffMemberships}</td>
               </tr>
-            ))}
+            ) : (
+              tenants.map((tenant) => (
+                <tr key={tenant.id}>
+                  <td className="platform-detail-cell">
+                    <span
+                      className="tenant-swatch"
+                      style={{ background: tenant.primaryColor }}
+                    />
+                    <b>{tenant.name}</b>
+                    <small>{tenant.id}</small>
+                  </td>
+                  <td>{tenant.organizations}</td>
+                  <td>{tenant.contactRequests}</td>
+                  <td>{tenant.tickets}</td>
+                  <td>{tenant.meetings}</td>
+                  <td>{tenant.activeSubscriptions}</td>
+                  <td>{tenant.completedContactRequests}</td>
+                  <td>{tenant.averageDaysToServe}</td>
+                  <td>{tenant.totalServiceValue.toLocaleString()} €</td>
+                  <td>{tenant.overdueServices}</td>
+                  <td>{tenant.staffMemberships}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -340,13 +383,17 @@ function UsersTable({
   loading,
   error,
   labels,
+  language,
   loadingText,
+  emptyText,
 }: {
   users: PlatformUser[];
   loading: boolean;
   error: string;
   labels: (typeof copy)["mk"]["userColumns"];
+  language: Language;
   loadingText: string;
+  emptyText: string;
 }) {
   return (
     <section className="meeting-card platform-table-card">
@@ -364,24 +411,40 @@ function UsersTable({
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td className="platform-detail-cell">
-                  <b>
-                    {`${user.firstName} ${user.lastName}`.trim() || user.email}
-                  </b>
-                  <small>{user.email}</small>
+            {!loading && users.length === 0 ? (
+              <tr>
+                <td className="platform-empty-row" colSpan={5}>
+                  {emptyText}
                 </td>
-                <td>{user.status}</td>
-                <td>{user.roles.join(", ") || "-"}</td>
-                <td>
-                  {user.memberships
-                    .map((item) => `${item.tenantId}: ${item.accessLevel}`)
-                    .join(", ") || "-"}
-                </td>
-                <td>{formatDate(user.lastLoginAt)}</td>
               </tr>
-            ))}
+            ) : (
+              users.map((user) => (
+                <tr key={user.id}>
+                  <td className="platform-detail-cell">
+                    <b>
+                      {`${user.firstName} ${user.lastName}`.trim() ||
+                        user.email}
+                    </b>
+                    <small>{user.email}</small>
+                  </td>
+                  <td>{labelFor(user.status, language)}</td>
+                  <td>
+                    {user.roles
+                      .map((role) => labelFor(role, language))
+                      .join(", ") || "-"}
+                  </td>
+                  <td>
+                    {user.memberships
+                      .map(
+                        (item) =>
+                          `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
+                      )
+                      .join(", ") || "-"}
+                  </td>
+                  <td>{formatDate(user.lastLoginAt)}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
