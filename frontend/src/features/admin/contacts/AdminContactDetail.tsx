@@ -240,14 +240,24 @@ export function AdminContactDetail(props: Props) {
               }}
             >
               <label>
-                <span>{language === "mk" ? "Агент" : "Agent"}</span>
+                <span>
+                  {crmText(
+                    "Одговорен член на тим",
+                    "Team owner",
+                    "Përgjegjës i ekipit",
+                  )}
+                </span>
                 <select
                   name="agentId"
                   required
                   defaultValue={contactDetail.assignedTo ?? ""}
                 >
                   <option value="">
-                    {language === "mk" ? "Избери агент" : "Select agent"}
+                    {crmText(
+                      "Избери член на тим",
+                      "Select team member",
+                      "Zgjidh anëtar ekipi",
+                    )}
                   </option>
                   {agents.map((staffUser) => (
                     <option key={staffUser.id} value={staffUser.id}>
@@ -468,9 +478,9 @@ export function AdminContactDetail(props: Props) {
                 name="body"
                 required
                 placeholder={crmText(
-                  "Додај внатрешна белешка само за staff",
-                  "Add an internal staff-only note",
-                  "Shto shënim të brendshëm vetëm për staff",
+                  "Додај внатрешна белешка само за тимот",
+                  "Add an internal team-only note",
+                  "Shto shënim të brendshëm vetëm për ekipin",
                 )}
               />
               <button className="approve">{t.save}</button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "../../features/auth/useAuth";
 import { labelFor } from "../../shared/labels";
 import type { Language, Navigate } from "../../shared/types";
@@ -19,6 +19,11 @@ const copy = {
     overview: "Преглед",
     tenants: "Центри",
     users: "Корисници",
+    descriptions: {
+      overview: "Глобален преглед на сите центри, корисници и CRM активност.",
+      tenants: "Споредба на CRM обемот, услугите и тимот по центар.",
+      users: "Пребарување и преглед на корисници, улоги и членства по центар.",
+    },
     noAccess: "Немате пристап до platform admin.",
     back: "Назад",
     logout: "Одјави се",
@@ -60,6 +65,12 @@ const copy = {
       tenants: "Нема внесени центри за приказ.",
       users: "Нема корисници за приказ.",
     },
+    search: {
+      label: "Пребарај корисници",
+      placeholder: "Име, email, улога или центар",
+      clear: "Исчисти",
+      noResults: "Нема корисници што одговараат на пребарувањето.",
+    },
   },
   en: {
     title: "Platform Admin",
@@ -67,6 +78,11 @@ const copy = {
     overview: "Overview",
     tenants: "Centres",
     users: "Users",
+    descriptions: {
+      overview: "A global view of all centres, users and CRM activity.",
+      tenants: "Compare CRM volume, services and team coverage by centre.",
+      users: "Search and review users, roles and centre memberships.",
+    },
     noAccess: "You do not have platform admin access.",
     back: "Back",
     logout: "Log out",
@@ -108,6 +124,12 @@ const copy = {
       tenants: "There are no centres to show.",
       users: "There are no users to show.",
     },
+    search: {
+      label: "Search users",
+      placeholder: "Name, email, role or centre",
+      clear: "Clear",
+      noResults: "No users match your search.",
+    },
   },
   sq: {
     title: "Platform Admin",
@@ -115,6 +137,13 @@ const copy = {
     overview: "Përmbledhje",
     tenants: "Qendra",
     users: "Përdorues",
+    descriptions: {
+      overview:
+        "Pamje globale e të gjitha qendrave, përdoruesve dhe aktivitetit CRM.",
+      tenants: "Krahasoni vëllimin CRM, shërbimet dhe ekipin sipas qendrës.",
+      users:
+        "Kërkoni dhe shqyrtoni përdoruesit, rolet dhe anëtarësimet në qendra.",
+    },
     noAccess: "Nuk keni qasje në platform admin.",
     back: "Prapa",
     logout: "Dil",
@@ -155,6 +184,12 @@ const copy = {
     empty: {
       tenants: "Nuk ka qendra për t'u shfaqur.",
       users: "Nuk ka përdorues për t'u shfaqur.",
+    },
+    search: {
+      label: "Kërko përdorues",
+      placeholder: "Emër, email, rol ose qendër",
+      clear: "Pastro",
+      noResults: "Asnjë përdorues nuk përputhet me kërkimin.",
     },
   },
 };
@@ -241,6 +276,9 @@ export function PlatformAdminDashboardPage({
                   ? text.tenants
                   : text.users}
             </h1>
+            <p className="platform-admin-description">
+              {text.descriptions[tab]}
+            </p>
           </div>
         </div>
         {overview.error && (
@@ -269,6 +307,7 @@ export function PlatformAdminDashboardPage({
                 error={users.error}
                 labels={text.userColumns}
                 language={language}
+                search={text.search}
                 loadingText={text.loading}
                 emptyText={text.empty.users}
               />
@@ -374,6 +413,44 @@ function TenantTable({
           </tbody>
         </table>
       </div>
+      <div className="platform-mobile-list">
+        {tenants.length === 0 ? (
+          <p className="platform-mobile-empty">{emptyText}</p>
+        ) : (
+          tenants.map((tenant) => (
+            <article className="platform-mobile-row" key={tenant.id}>
+              <header>
+                <span
+                  className="tenant-swatch"
+                  style={{ background: tenant.primaryColor }}
+                />
+                <div>
+                  <b>{tenant.name}</b>
+                  <small>{tenant.id}</small>
+                </div>
+              </header>
+              <dl>
+                <div>
+                  <dt>{labels.contacts}</dt>
+                  <dd>{tenant.contactRequests}</dd>
+                </div>
+                <div>
+                  <dt>{labels.subscriptions}</dt>
+                  <dd>{tenant.activeSubscriptions}</dd>
+                </div>
+                <div>
+                  <dt>{labels.completed}</dt>
+                  <dd>{tenant.completedContactRequests}</dd>
+                </div>
+                <div>
+                  <dt>{labels.staff}</dt>
+                  <dd>{tenant.staffMemberships}</dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        )}
+      </div>
     </section>
   );
 }
@@ -384,6 +461,7 @@ function UsersTable({
   error,
   labels,
   language,
+  search,
   loadingText,
   emptyText,
 }: {
@@ -392,13 +470,58 @@ function UsersTable({
   error: string;
   labels: (typeof copy)["mk"]["userColumns"];
   language: Language;
+  search: (typeof copy)["mk"]["search"];
   loadingText: string;
   emptyText: string;
 }) {
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const filteredUsers = useMemo(() => {
+    if (!normalizedQuery) return users;
+    return users.filter((user) => {
+      const searchable = [
+        user.firstName,
+        user.lastName,
+        user.email,
+        labelFor(user.status, language),
+        ...user.roles.map((role) => labelFor(role, language)),
+        ...user.memberships.flatMap((item) => [
+          item.tenantId,
+          item.accessLevel,
+          labelFor(item.accessLevel, language),
+        ]),
+      ]
+        .join(" ")
+        .toLocaleLowerCase();
+      return searchable.includes(normalizedQuery);
+    });
+  }, [language, normalizedQuery, users]);
+  const emptyMessage = normalizedQuery ? search.noResults : emptyText;
+
   return (
     <section className="meeting-card platform-table-card">
       {loading && <p>{loadingText}</p>}
       {error && <p className="form-error">{error}</p>}
+      <div className="platform-table-toolbar">
+        <label className="platform-search">
+          <span>{search.label}</span>
+          <input
+            type="search"
+            value={query}
+            placeholder={search.placeholder}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        {query && (
+          <button
+            className="secondary"
+            type="button"
+            onClick={() => setQuery("")}
+          >
+            {search.clear}
+          </button>
+        )}
+      </div>
       <div className="platform-table-scroll">
         <table className="platform-table">
           <thead>
@@ -411,14 +534,14 @@ function UsersTable({
             </tr>
           </thead>
           <tbody>
-            {!loading && users.length === 0 ? (
+            {!loading && filteredUsers.length === 0 ? (
               <tr>
                 <td className="platform-empty-row" colSpan={5}>
-                  {emptyText}
+                  {emptyMessage}
                 </td>
               </tr>
             ) : (
-              users.map((user) => (
+              filteredUsers.map((user) => (
                 <tr key={user.id}>
                   <td className="platform-detail-cell">
                     <b>
@@ -447,6 +570,53 @@ function UsersTable({
             )}
           </tbody>
         </table>
+      </div>
+      <div className="platform-mobile-list">
+        {!loading && filteredUsers.length === 0 ? (
+          <p className="platform-mobile-empty">{emptyMessage}</p>
+        ) : (
+          filteredUsers.map((user) => (
+            <article className="platform-mobile-row" key={user.id}>
+              <header>
+                <div>
+                  <b>
+                    {`${user.firstName} ${user.lastName}`.trim() || user.email}
+                  </b>
+                  <small>{user.email}</small>
+                </div>
+              </header>
+              <dl>
+                <div>
+                  <dt>{labels.status}</dt>
+                  <dd>{labelFor(user.status, language)}</dd>
+                </div>
+                <div>
+                  <dt>{labels.roles}</dt>
+                  <dd>
+                    {user.roles
+                      .map((role) => labelFor(role, language))
+                      .join(", ") || "-"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{labels.memberships}</dt>
+                  <dd>
+                    {user.memberships
+                      .map(
+                        (item) =>
+                          `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
+                      )
+                      .join(", ") || "-"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{labels.lastLogin}</dt>
+                  <dd>{formatDate(user.lastLoginAt)}</dd>
+                </div>
+              </dl>
+            </article>
+          ))
+        )}
       </div>
     </section>
   );

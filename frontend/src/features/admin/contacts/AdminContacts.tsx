@@ -115,10 +115,10 @@ export function AdminContacts(props: Props) {
               >
                 <option value="">
                   {language === "en"
-                    ? "Assign staff"
+                    ? "Assign team member"
                     : language === "sq"
-                      ? "Cakto stafin"
-                      : "Додели на staff"}
+                      ? "Cakto anëtar ekipi"
+                      : "Додели член на тим"}
                 </option>
                 {(staffUsers.data ?? []).map((staffUser) => (
                   <option

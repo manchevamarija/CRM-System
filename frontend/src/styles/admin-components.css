@@ -449,9 +449,45 @@ footer small {
   color: #173f5f;
   font-size: 28px;
 }
+.platform-admin-description {
+  max-width: 640px;
+  margin: -24px 0 30px;
+  color: #687980;
+  font-size: 15px;
+  line-height: 1.6;
+}
 .platform-table-card {
   padding: 0;
   overflow: hidden;
+}
+.platform-table-toolbar {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfdfd;
+}
+.platform-search {
+  display: grid;
+  flex: 1;
+  gap: 7px;
+  min-width: 0;
+}
+.platform-search span {
+  color: #687980;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.platform-search input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid #cfdde2;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
 }
 .platform-table-scroll {
   overflow-x: auto;
@@ -485,6 +521,9 @@ footer small {
   color: #6c7c82 !important;
   text-align: center !important;
   background: #f8fbfb;
+}
+.platform-mobile-list {
+  display: none;
 }
 .platform-detail-cell {
   display: grid;
@@ -539,5 +578,75 @@ footer small {
   .platform-table th,
   .platform-table td {
     padding: 12px 13px;
+  }
+  .platform-admin-description {
+    margin-top: -20px;
+    font-size: 14px;
+  }
+  .platform-table-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 14px;
+  }
+  .platform-table-toolbar .secondary {
+    width: 100%;
+  }
+  .platform-table-scroll {
+    display: none;
+  }
+  .platform-mobile-list {
+    display: grid;
+  }
+  .platform-mobile-row {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+  }
+  .platform-mobile-row header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .platform-mobile-row header > div {
+    display: grid;
+    min-width: 0;
+  }
+  .platform-mobile-row header b {
+    color: var(--ink);
+    font-size: 15px;
+  }
+  .platform-mobile-row header small {
+    color: #738488;
+    overflow-wrap: anywhere;
+  }
+  .platform-mobile-row dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    margin: 0;
+  }
+  .platform-mobile-row dl div {
+    min-width: 0;
+  }
+  .platform-mobile-row dt {
+    color: #687980;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .platform-mobile-row dd {
+    margin: 4px 0 0;
+    color: var(--ink);
+    font-size: 13px;
+    overflow-wrap: anywhere;
+  }
+  .platform-mobile-empty {
+    margin: 0;
+    padding: 28px 16px;
+    color: #6c7c82;
+    text-align: center;
+    background: #f8fbfb;
   }
 }

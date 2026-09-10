@@ -196,7 +196,7 @@ export const dashboardCopy = {
       signedIn: "Signed-in user",
       registerOrganization: "Register organisation",
       administration: "Administration",
-      workspace: "Staff workspace",
+      workspace: "Support workspace",
       logout: "Sign out",
       portal: "CLIENT PORTAL",
       welcome: "Welcome",

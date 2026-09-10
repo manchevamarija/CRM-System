@@ -13,8 +13,10 @@ type Props = {
 export function AdminSettings({ t, language, settings, onSave }: Props) {
   const retention = settings.find((item) => item.key === "DataRetentionDays");
   const notificationRoles = new Set(
-    (settings.find((item) => item.key === "StaffNotificationRoles")?.value ||
-      "Admin,HelpDeskAgent,Expert")
+    (
+      settings.find((item) => item.key === "StaffNotificationRoles")?.value ||
+      "Admin,HelpDeskAgent,Expert"
+    )
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean),
@@ -42,9 +44,9 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
           notices: "Системски известувања",
           notificationTitle: "Кој добива клиентски известувања",
           notificationDescription:
-            "Одберете кои staff улоги ќе добиваат известувања за нови CRM барања, клиентски услуги, состаноци и промени.",
+            "Одберете кои улоги од тимот ќе добиваат известувања за нови CRM барања, клиентски услуги, состаноци и промени.",
           admin: "Администратор",
-          helpDesk: "Help desk советник",
+          helpDesk: "Help-desk советник",
           expert: "Експерт",
         }
       : language === "sq"
@@ -65,9 +67,9 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             notices: "Njoftimet e sistemit",
             notificationTitle: "Kush merr njoftime nga klientët",
             notificationDescription:
-              "Zgjidhni cilat role të staff marrin njoftime për kërkesa CRM, shërbime, takime dhe ndryshime.",
+              "Zgjidhni cilat role të ekipit marrin njoftime për kërkesa CRM, shërbime, takime dhe ndryshime.",
             admin: "Administrator",
-            helpDesk: "Këshilltar help desk",
+            helpDesk: "Këshilltar help-desk",
             expert: "Ekspert",
           }
         : {
@@ -87,9 +89,9 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             notices: "System notifications",
             notificationTitle: "Who receives client notifications",
             notificationDescription:
-              "Choose which staff roles receive notifications for new CRM requests, client services, meetings and changes.",
+              "Choose which team roles receive notifications for new CRM requests, client services, meetings and changes.",
             admin: "Administrator",
-            helpDesk: "Help desk advisor",
+            helpDesk: "Help-desk advisor",
             expert: "Expert",
           };
 
