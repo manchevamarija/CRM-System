@@ -4,13 +4,12 @@ import type { Navigate } from "../../shared/types";
 import { useApiResource } from "../../shared/useApiResource";
 import { usePortalLanguage } from "../../shared/usePortalLanguage";
 import type {
-  PlatformAudit,
   PlatformOverview,
   PlatformTenant,
   PlatformUser,
 } from "../admin/adminModels";
 
-type Tab = "tenants" | "users" | "audit";
+type Tab = "tenants" | "users";
 
 const copy = {
   mk: {
@@ -18,7 +17,6 @@ const copy = {
     eyebrow: "Глобална администрација",
     tenants: "Центри",
     users: "Корисници",
-    audit: "Audit",
     noAccess: "Немате пристап до platform admin.",
     back: "Назад",
     logout: "Одјави се",
@@ -44,7 +42,6 @@ const copy = {
       meetings: "Состаноци",
       subscriptions: "Претплати",
       staff: "Staff",
-      audit: "Audit",
       completed: "Услужени",
       avgDays: "Прос. денови",
       value: "Вредност",
@@ -57,20 +54,12 @@ const copy = {
       memberships: "Центри",
       lastLogin: "Последна најава",
     },
-    auditColumns: {
-      event: "Настан",
-      tenant: "Центар",
-      entity: "Ентитет",
-      actor: "Актер",
-      time: "Време",
-    },
   },
   en: {
     title: "Platform Admin",
     eyebrow: "Global administration",
     tenants: "Centres",
     users: "Users",
-    audit: "Audit",
     noAccess: "You do not have platform admin access.",
     back: "Back",
     logout: "Log out",
@@ -96,7 +85,6 @@ const copy = {
       meetings: "Meetings",
       subscriptions: "Subscriptions",
       staff: "Staff",
-      audit: "Audit",
       completed: "Served",
       avgDays: "Avg. days",
       value: "Value",
@@ -109,20 +97,12 @@ const copy = {
       memberships: "Centres",
       lastLogin: "Last login",
     },
-    auditColumns: {
-      event: "Event",
-      tenant: "Centre",
-      entity: "Entity",
-      actor: "Actor",
-      time: "Time",
-    },
   },
   sq: {
     title: "Platform Admin",
     eyebrow: "Administrim global",
     tenants: "Qendra",
     users: "Përdorues",
-    audit: "Audit",
     noAccess: "Nuk keni qasje në platform admin.",
     back: "Prapa",
     logout: "Dil",
@@ -148,7 +128,6 @@ const copy = {
       meetings: "Takime",
       subscriptions: "Abonime",
       staff: "Staff",
-      audit: "Audit",
       completed: "Të shërbyera",
       avgDays: "Ditë mes.",
       value: "Vlera",
@@ -160,13 +139,6 @@ const copy = {
       roles: "Role",
       memberships: "Qendra",
       lastLogin: "Hyrja e fundit",
-    },
-    auditColumns: {
-      event: "Ngjarja",
-      tenant: "Qendra",
-      entity: "Entiteti",
-      actor: "Aktori",
-      time: "Koha",
     },
   },
 };
@@ -233,13 +205,6 @@ export function PlatformAdminDashboardPage({
           <span>{text.users}</span>
           <span>›</span>
         </button>
-        <button
-          className={tab === "audit" ? "sel" : ""}
-          onClick={() => setTab("audit")}
-        >
-          <span>{text.audit}</span>
-          <span>›</span>
-        </button>
         <button onClick={() => onNavigate("admin")}>Admin ›</button>
       </aside>
       <div className="dash-main">
@@ -249,9 +214,7 @@ export function PlatformAdminDashboardPage({
             <h1>
               {tab === "tenants"
                 ? text.tenants
-                : tab === "users"
-                  ? text.users
-                  : text.audit}
+                : text.users}
             </h1>
           </div>
         </div>
@@ -275,12 +238,6 @@ export function PlatformAdminDashboardPage({
                 error={users.error}
                 labels={text.userColumns}
                 loadingText={text.loading}
-              />
-            )}
-            {tab === "audit" && (
-              <AuditTable
-                rows={overview.data.recentAudit}
-                labels={text.auditColumns}
               />
             )}
           </>
@@ -346,7 +303,6 @@ function TenantTable({
               <th>{labels.value}</th>
               <th>{labels.overdue}</th>
               <th>{labels.staff}</th>
-              <th>{labels.audit}</th>
             </tr>
           </thead>
           <tbody>
@@ -370,7 +326,6 @@ function TenantTable({
                 <td>{tenant.totalServiceValue.toLocaleString()} €</td>
                 <td>{tenant.overdueServices}</td>
                 <td>{tenant.staffMemberships}</td>
-                <td>{tenant.auditEvents}</td>
               </tr>
             ))}
           </tbody>
@@ -425,46 +380,6 @@ function UsersTable({
                     .join(", ") || "-"}
                 </td>
                 <td>{formatDate(user.lastLoginAt)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
-function AuditTable({
-  rows,
-  labels,
-}: {
-  rows: PlatformAudit[];
-  labels: (typeof copy)["mk"]["auditColumns"];
-}) {
-  return (
-    <section className="meeting-card platform-table-card">
-      <div className="platform-table-scroll">
-        <table className="platform-table">
-          <thead>
-            <tr>
-              <th>{labels.event}</th>
-              <th>{labels.tenant}</th>
-              <th>{labels.entity}</th>
-              <th>{labels.actor}</th>
-              <th>{labels.time}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td>{row.action}</td>
-                <td>{row.tenantId}</td>
-                <td className="platform-detail-cell">
-                  <b>{row.entityType}</b>
-                  <small>{row.entityId}</small>
-                </td>
-                <td>{row.actorUserId ?? "-"}</td>
-                <td>{formatDate(row.createdAt)}</td>
               </tr>
             ))}
           </tbody>
