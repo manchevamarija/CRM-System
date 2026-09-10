@@ -1,7 +1,7 @@
 import { labelFor } from "../../shared/labels";
 import { usePortalLanguage } from "../../shared/usePortalLanguage";
-import type { CrmRequest, CrmServiceItem, CrmTimelineItem } from "./clientModels";
-import { useEffect, useState } from "react";
+import type { CrmRequest, CrmServiceItem } from "./clientModels";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import { api } from "../../api";
 import { crmServiceCatalog, serviceLabel } from "../../shared/serviceCatalog";
@@ -85,26 +85,12 @@ type CardProps = {
 function CrmRequestCard({ request, locale, language, text }: CardProps) {
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
-  const [timeline, setTimeline] = useState<CrmTimelineItem[]>([]);
   const services = parseServices(request.serviceItemsJson);
   const currentStatus = crmStatuses.indexOf(request.status);
   const requestType =
     request.requestType === "Partnership"
       ? text("Соработка", "Partnership", "Bashkëpunim")
       : text("Консултација", "Consultation", "Konsultim");
-  useEffect(() => {
-    let active = true;
-    api<CrmTimelineItem[]>(`/api/crm/my-requests/${request.id}/timeline`)
-      .then((items) => {
-        if (active) setTimeline(items);
-      })
-      .catch(() => {
-        if (active) setTimeline([]);
-      });
-    return () => {
-      active = false;
-    };
-  }, [request.id, request.updatedAt]);
 
   return (
     <article className="client-crm-card">
@@ -167,27 +153,6 @@ function CrmRequestCard({ request, locale, language, text }: CardProps) {
                   )}
             </span>
           </div>
-        ))}
-      </section>
-      <section className="client-crm-activity">
-        <div className="list-head">
-          <h3>{text("Активности", "Activity", "Aktivitetet")}</h3>
-          <span>{timeline.length}</span>
-        </div>
-        {!timeline.length && (
-          <p>
-            {text(
-              "Сè уште нема забележани активности.",
-              "No activity has been recorded yet.",
-              "Ende nuk është regjistruar aktivitet.",
-            )}
-          </p>
-        )}
-        {timeline.slice(0, 6).map((item) => (
-          <article key={item.id}>
-            <b>{clientActivityLabel(item.action, language)}</b>
-            <small>{new Date(item.createdAt).toLocaleString(locale)}</small>
-          </article>
         ))}
       </section>
       <form
@@ -267,26 +232,6 @@ function CrmRequestCard({ request, locale, language, text }: CardProps) {
       </p>
     </article>
   );
-}
-
-function clientActivityLabel(action: string, language: "mk" | "en" | "sq") {
-  const text = (mk: string, en: string, sq: string) =>
-    language === "en" ? en : language === "sq" ? sq : mk;
-  const labels: Record<string, string> = {
-    ContactRequestCreated: text("Барањето е примено", "Request received", "Kërkesa u pranua"),
-    ContactRequestUpdated: text("Статусот е ажуриран", "Status updated", "Statusi u përditësua"),
-    ContactRequestAssigned: text("Доделен е CRM тим", "CRM team assigned", "Ekipi CRM u caktua"),
-    ContactRequestHandled: text("Барањето е услужено", "Request served", "Kërkesa u shërbye"),
-    ContactRequestTransferred: text("Барањето е предадено", "Request handed over", "Kërkesa u dorëzua"),
-    ContactRequestResponded: text("Испратен е одговор", "Response sent", "Përgjigjja u dërgua"),
-    ContactRegistrationInvited: text("Испратена е покана", "Invitation sent", "Ftesa u dërgua"),
-    ContactRequestServiceAdded: text("Додадена е услуга", "Service added", "Shërbimi u shtua"),
-    ContactRequestServiceRemoved: text("Отстранета е услуга", "Service removed", "Shërbimi u hoq"),
-    ContactRequestServiceAddedByClient: text("Додадовте услуга", "You added a service", "Ju shtuat shërbim"),
-    ContactRequestServiceUpdated: text("Услугата е ажурирана", "Service updated", "Shërbimi u përditësua"),
-    ContactRequestServiceAssigned: text("Услугата е доделена", "Service assigned", "Shërbimi u caktua"),
-  };
-  return labels[action] ?? action;
 }
 
 function parseServices(json: string): CrmServiceItem[] {

@@ -127,32 +127,6 @@
   font: inherit;
   resize: vertical;
 }
-.client-crm-activity {
-  display: grid;
-  gap: 10px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e8ea;
-}
-.client-crm-activity > p {
-  margin: 0;
-  color: #687980;
-}
-.client-crm-activity article {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 10px 0;
-  border-bottom: 1px solid #edf2f3;
-}
-.client-crm-activity article b {
-  color: #102a3b;
-}
-.client-crm-activity article small {
-  color: #687980;
-  white-space: nowrap;
-}
-
 @media (max-width: 950px) {
   .notification-setting-card,
   .contact-activity-grid {
@@ -160,9 +134,6 @@
   }
   .admin-service-card .admin-service-note {
     grid-column: 1 / -1;
-  }
-  .client-crm-activity article {
-    display: grid;
   }
 }
 /* Client-owned contact requests and admin content management */
