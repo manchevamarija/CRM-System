@@ -524,62 +524,57 @@ footer small {
   gap: 7px;
   min-width: 0;
 }
-/* Users table filter row: filters live INSIDE the same table as the
-   column headers and data, so the browser uses exactly the same column tracks. */
-.platform-users-table .platform-users-filter-row th {
+/* Users filters live inside the same table as the column headers/body. */
+.platform-users-filter-row th {
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
   background: #fbfdfd;
-  text-transform: none;
   vertical-align: bottom;
 }
 
-.platform-users-table .platform-users-filter-cell {
-  min-width: 0;
-}
-
-.platform-users-table .platform-users-filter-cell > label {
+.platform-users-filter-cell > label {
   display: grid;
-  gap: 7px;
+  width: 100%;
   min-width: 0;
-  margin: 0;
-  text-align: left;
+  gap: 7px;
+  box-sizing: border-box;
 }
 
-.platform-users-table .platform-users-filter-cell > label > span {
+.platform-users-filter-cell > label > span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
   color: #687980;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.platform-users-table .platform-users-filter-cell input,
-.platform-users-table .platform-users-filter-cell select {
+.platform-users-filter-cell input,
+.platform-users-filter-cell select {
   display: block;
-  box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  height: 44px;
+  max-width: 100%;
   min-height: 44px;
-  padding: 10px 13px;
-  border: 1px solid #cfdde2;
-  border-radius: 6px;
-  background: #fff;
-  color: var(--ink);
+  box-sizing: border-box;
 }
 
-.platform-users-table .platform-users-filter-actions {
+.platform-users-filter-actions {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
+  width: 100%;
   min-width: 0;
+  box-sizing: border-box;
 }
 
-.platform-users-table .platform-users-filter-actions .secondary {
-  width: auto;
+.platform-users-filter-actions .secondary {
   min-width: 0;
-  margin: 0;
+  max-width: 100%;
 }
 
 .platform-filter-check {
@@ -612,6 +607,8 @@ footer small {
   background: #fff;
 }
 .platform-table.platform-users-table {
+  width: 100%;
+  min-width: 760px;
   table-layout: fixed;
 }
 .platform-table th,
@@ -630,6 +627,8 @@ footer small {
 .platform-table td {
   color: var(--ink);
   font-size: 13px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .platform-empty-row {
   padding: 28px 18px !important;
