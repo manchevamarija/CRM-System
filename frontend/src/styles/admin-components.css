@@ -527,11 +527,20 @@ footer small {
 /* Users toolbar: grid columns match the users table's <colgroup> widths
    exactly (0 outer padding/gap, same per-cell padding as th/td) so the
    filters line up with the columns below them. */
+/* Users toolbar: lives inside the SAME .platform-table-scroll container as
+   the table (not a sibling of it), with the same min-width, so the two can
+   never end up with different total widths / independent scroll offsets.
+   Its grid columns match the users table's <colgroup> widths exactly (0
+   outer padding/gap, same per-cell padding as th/td) so filters line up
+   with the columns below them. */
 .platform-table-toolbar.platform-users-toolbar {
   display: grid;
   grid-template-columns: 30% 12% 26% 18% 14%;
   gap: 0;
   padding: 0;
+  min-width: 760px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfdfd;
 }
 .platform-users-toolbar .platform-search,
 .platform-users-toolbar .platform-filter-select {
@@ -700,6 +709,7 @@ footer small {
     display: flex;
     padding: 14px;
     gap: 12px;
+    min-width: 0;
   }
   .platform-users-toolbar .platform-search,
   .platform-users-toolbar .platform-filter-select,
@@ -722,6 +732,13 @@ footer small {
     width: 100%;
   }
   .platform-table-scroll {
+    display: none;
+  }
+  .platform-users-scroll {
+    display: block;
+    overflow: visible;
+  }
+  .platform-users-table {
     display: none;
   }
   .platform-mobile-list {
