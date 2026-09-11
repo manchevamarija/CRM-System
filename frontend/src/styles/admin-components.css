@@ -521,7 +521,27 @@ footer small {
 .platform-filter-select {
   display: grid;
   gap: 7px;
-  min-width: 145px;
+  min-width: 0;
+}
+/* Users toolbar: grid columns match the users table's <colgroup> widths
+   exactly (0 outer padding/gap, same per-cell padding as th/td) so the
+   filters line up with the columns below them. */
+.platform-table-toolbar.platform-users-toolbar {
+  display: grid;
+  grid-template-columns: 30% 12% 26% 18% 14%;
+  gap: 0;
+  padding: 0;
+}
+.platform-users-toolbar .platform-search,
+.platform-users-toolbar .platform-filter-select {
+  padding: 14px 16px;
+}
+.platform-users-toolbar .platform-toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 16px;
 }
 .platform-filter-check {
   display: flex;
@@ -551,6 +571,9 @@ footer small {
   min-width: 760px;
   border-collapse: collapse;
   background: #fff;
+}
+.platform-table.platform-users-table {
+  table-layout: fixed;
 }
 .platform-table th,
 .platform-table td {
@@ -671,6 +694,20 @@ footer small {
     align-items: stretch;
     flex-direction: column;
     padding: 14px;
+  }
+  .platform-table-toolbar.platform-users-toolbar {
+    display: flex;
+    padding: 14px;
+    gap: 12px;
+  }
+  .platform-users-toolbar .platform-search,
+  .platform-users-toolbar .platform-filter-select,
+  .platform-users-toolbar .platform-toolbar-actions {
+    padding: 0;
+  }
+  .platform-users-toolbar .platform-toolbar-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
   .platform-filter-select {
     min-width: 0;
