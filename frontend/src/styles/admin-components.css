@@ -524,49 +524,64 @@ footer small {
   gap: 7px;
   min-width: 0;
 }
-/* Users toolbar: use the exact same five column widths as the users table. */
-.platform-table-toolbar.platform-users-toolbar {
-  display: grid;
-  grid-template-columns: 30% 12% 26% 18% 14%;
-  width: 100%;
-  min-width: 760px;
-  margin: 0;
-  padding: 0;
-  gap: 0;
-  box-sizing: border-box;
-  align-items: stretch;
+/* Users table filter row: filters live INSIDE the same table as the
+   column headers and data, so the browser uses exactly the same column tracks. */
+.platform-users-table .platform-users-filter-row th {
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
   background: #fbfdfd;
+  text-transform: none;
+  vertical-align: bottom;
 }
 
-.platform-users-toolbar .platform-search,
-.platform-users-toolbar .platform-filter-select {
+.platform-users-table .platform-users-filter-cell {
+  min-width: 0;
+}
+
+.platform-users-table .platform-users-filter-cell > label {
   display: grid;
-  grid-template-rows: auto 44px;
   gap: 7px;
   min-width: 0;
   margin: 0;
-  padding: 14px 16px;
-  box-sizing: border-box;
+  text-align: left;
 }
 
-.platform-users-toolbar .platform-search input,
-.platform-users-toolbar .platform-filter-select select {
+.platform-users-table .platform-users-filter-cell > label > span {
+  color: #687980;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.platform-users-table .platform-users-filter-cell input,
+.platform-users-table .platform-users-filter-cell select {
+  display: block;
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: 44px;
-  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid #cfdde2;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
 }
 
-.platform-users-toolbar .platform-toolbar-actions {
+.platform-users-table .platform-users-filter-actions {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.platform-users-table .platform-users-filter-actions .secondary {
+  width: auto;
   min-width: 0;
   margin: 0;
-  padding: 14px 16px;
-  box-sizing: border-box;
 }
+
 .platform-filter-check {
   display: flex;
   align-items: center;
@@ -718,34 +733,6 @@ footer small {
     align-items: stretch;
     flex-direction: column;
     padding: 14px;
-  }
-  .platform-table-toolbar.platform-users-toolbar {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    min-width: 0;
-    padding: 14px;
-  }
-
-  .platform-users-toolbar .platform-search,
-  .platform-users-toolbar .platform-filter-select {
-    display: grid;
-    grid-template-rows: auto 44px;
-    gap: 7px;
-    width: 100%;
-    min-width: 0;
-    padding: 0;
-  }
-
-  .platform-users-toolbar .platform-toolbar-actions {
-    display: flex;
-    align-items: stretch;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 8px;
-    width: 100%;
-    padding: 0;
   }
   .platform-filter-select {
     min-width: 0;
