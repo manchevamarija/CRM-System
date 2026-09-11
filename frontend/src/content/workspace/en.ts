@@ -165,7 +165,7 @@ export const en: Copy = {
   emailVerified: "Email verified",
   staffArea: "Support workspace",
   onlineLink: "Online link",
-  helpDeskAgent: "Help-desk agent",
+  helpDeskAgent: "Help-desk advisor",
   expert: "Expert",
   clientOrganization: "CLIENT ORGANISATION",
   dmaContactRequest: "DMA CONTACT REQUEST",

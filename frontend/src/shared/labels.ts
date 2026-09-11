@@ -174,7 +174,7 @@ const values: Record<Language, Record<string, string>> = {
     ClientMessage: "Client message",
     StaffReply: "Support reply",
     Client: "Client",
-    HelpDeskAgent: "Help-desk agent",
+    HelpDeskAgent: "Help-desk advisor",
     Expert: "Expert",
     Admin: "Administrator",
     PlatformAdmin: "Platform administrator",

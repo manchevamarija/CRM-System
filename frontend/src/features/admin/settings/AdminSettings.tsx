@@ -38,7 +38,6 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
           year: "година",
           years: "години",
           data: "Податоци и приватност",
-          automation: "Системски автоматизации",
           active: "Активно",
           cleanup: "Автоматско чистење",
           notices: "Системски известувања",
@@ -61,7 +60,6 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             year: "vit",
             years: "vjet",
             data: "Të dhënat dhe privatësia",
-            automation: "Automatizimet e sistemit",
             active: "Aktive",
             cleanup: "Pastrimi automatik",
             notices: "Njoftimet e sistemit",
@@ -83,7 +81,6 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             year: "year",
             years: "years",
             data: "Data and privacy",
-            automation: "System automations",
             active: "Active",
             cleanup: "Automatic cleanup",
             notices: "System notifications",
@@ -108,11 +105,6 @@ export function AdminSettings({ t, language, settings, onSave }: Props) {
             <i>◫</i>
             <span>{copy.data}</span>
           </button>
-          <div>
-            <i>✓</i>
-            <span>{copy.automation}</span>
-            <small>{copy.active}</small>
-          </div>
         </nav>
         <div className="settings-main-panel">
           <form className="retention-setting-card" onSubmit={onSave}>
