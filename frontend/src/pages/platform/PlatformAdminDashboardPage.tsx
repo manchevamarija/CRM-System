@@ -602,12 +602,15 @@ function UsersTable({
   emptyText: string;
 }) {
   const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("Active");
   const [roleFilter, setRoleFilter] = useState("");
   const [centreFilter, setCentreFilter] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const statusOptions = useMemo(
-    () => Array.from(new Set(users.map((user) => user.status))).sort(),
+    () =>
+      Array.from(
+        new Set(["Active", ...users.map((user) => user.status)]),
+      ).sort(),
     [users],
   );
   const roleOptions = useMemo(
@@ -664,11 +667,14 @@ function UsersTable({
     users,
   ]);
   const hasFilters =
-    !!normalizedQuery || !!statusFilter || !!roleFilter || !!centreFilter;
+    !!normalizedQuery ||
+    statusFilter !== "Active" ||
+    !!roleFilter ||
+    !!centreFilter;
   const emptyMessage = hasFilters ? search.noResults : emptyText;
   const clearFilters = () => {
     setQuery("");
-    setStatusFilter("");
+    setStatusFilter("Active");
     setRoleFilter("");
     setCentreFilter("");
   };
