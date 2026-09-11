@@ -3768,3 +3768,79 @@ footer .brand.invert img.crm-system-logo {
     margin-right: 28px !important;
   }
 }
+
+/* Settings page: keep cards inside the content column and avoid the automation panel overflow. */
+.settings-center-layout {
+  grid-template-columns: minmax(210px, 240px) minmax(0, 1fr) !important;
+}
+.settings-main-panel {
+  display: grid !important;
+  gap: 16px !important;
+  min-width: 0 !important;
+}
+.settings-main-panel .retention-setting-card {
+  grid-template-columns: 54px minmax(0, 1fr) minmax(260px, 320px) !important;
+  gap: 22px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.settings-automation-summary {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+  margin-top: 0 !important;
+}
+.notification-setting-card {
+  grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(115px, auto)) 140px !important;
+  gap: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 20px !important;
+}
+.notification-setting-card > div {
+  max-width: 340px !important;
+}
+.notification-setting-card label {
+  justify-content: center !important;
+  min-height: 44px !important;
+  padding: 8px 10px !important;
+  border: 1px solid #dce7e9 !important;
+  border-radius: 8px !important;
+  background: #f8fbfb !important;
+}
+.settings-automation-summary > div {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: #fff !important;
+}
+@media (min-width: 981px) {
+  .settings-automation-summary > div {
+    grid-template-columns: 30px minmax(0, 1fr) auto !important;
+  }
+}
+@media (max-width: 1150px) {
+  .notification-setting-card {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
+  .notification-setting-card > div,
+  .notification-setting-card .settings-save {
+    grid-column: 1 / -1 !important;
+    max-width: none !important;
+  }
+}
+@media (max-width: 980px) {
+  .settings-center-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .settings-main-panel .retention-setting-card {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+  }
+}
+@media (max-width: 620px) {
+  .notification-setting-card {
+    grid-template-columns: 1fr !important;
+  }
+  .notification-setting-card label {
+    justify-content: flex-start !important;
+  }
+}
