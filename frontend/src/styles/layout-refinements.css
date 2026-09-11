@@ -3893,6 +3893,7 @@ footer .brand.invert img.crm-system-logo {
   justify-self: stretch !important;
   padding-inline: 18px !important;
   white-space: nowrap !important;
+  transform: translateY(10px) !important;
 }
 @media (max-width: 1100px) {
   .admin-org-create-grid {
@@ -3921,5 +3922,8 @@ footer .brand.invert img.crm-system-logo {
   .admin-org-create-grid select[name="clientUserId"],
   .admin-org-create-grid button {
     grid-column: 1 !important;
+  }
+  .admin-org-create-grid button {
+    transform: none !important;
   }
 }
