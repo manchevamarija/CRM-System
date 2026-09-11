@@ -644,13 +644,13 @@ footer small {
 .platform-status-badge {
   display: inline-flex;
   align-items: center;
-  min-height: 26px;
-  padding: 5px 10px;
+  min-height: 32px;
+  padding: 7px 13px;
   border-radius: 999px;
   border: 1px solid #dce7e9;
   background: #f5f8f8;
   color: #53666c;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
@@ -679,6 +679,24 @@ footer small {
   min-width: 0;
   vertical-align: top;
 }
+
+.platform-users-table .platform-detail-cell b,
+.platform-users-table .platform-detail-cell small {
+  display: block;
+  min-width: 0;
+}
+
+.platform-users-table .platform-detail-cell b {
+  margin: 0;
+}
+
+.platform-users-table .platform-detail-cell small {
+  margin-top: 8px;
+  color: #738488;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
 .platform-detail-content {
   display: inline-grid;
   grid-template-columns: minmax(0, 1fr);
@@ -686,11 +704,14 @@ footer small {
   margin-left: 10px;
   vertical-align: top;
 }
-.platform-detail-cell b,
-.platform-detail-cell small {
+
+.platform-detail-content b,
+.platform-detail-content small {
+  display: block;
   min-width: 0;
 }
-.platform-detail-cell small {
+
+.platform-detail-content small {
   margin-top: 4px;
   color: #738488;
   overflow-wrap: anywhere;
