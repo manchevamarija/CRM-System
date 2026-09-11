@@ -74,7 +74,7 @@ const copy = {
     filters: {
       centreSearch: "Пребарај центри",
       centrePlaceholder: "Центар или ID",
-      overdueOnly: "Само со пробиени рокови",
+      overdueOnly: "Само центри со задоцнети услуги",
       status: "Статус",
       role: "Улога",
       centre: "Центар",
