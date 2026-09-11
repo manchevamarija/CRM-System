@@ -524,57 +524,62 @@ footer small {
   gap: 7px;
   min-width: 0;
 }
-/* Users filters live inside the same table as the column headers/body. */
-.platform-users-filter-row th {
+/* Users table filter row: filters live INSIDE the same table as the
+   column headers and data, so the browser uses exactly the same column tracks. */
+.platform-users-table .platform-users-filter-row th {
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
   background: #fbfdfd;
+  text-transform: none;
   vertical-align: bottom;
 }
 
-.platform-users-filter-cell > label {
-  display: grid;
-  width: 100%;
+.platform-users-table .platform-users-filter-cell {
   min-width: 0;
-  gap: 7px;
-  box-sizing: border-box;
 }
 
-.platform-users-filter-cell > label > span {
-  display: block;
+.platform-users-table .platform-users-filter-cell > label {
+  display: grid;
+  gap: 7px;
   min-width: 0;
-  overflow: hidden;
+  margin: 0;
+  text-align: left;
+}
+
+.platform-users-table .platform-users-filter-cell > label > span {
   color: #687980;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
-.platform-users-filter-cell input,
-.platform-users-filter-cell select {
+.platform-users-table .platform-users-filter-cell input,
+.platform-users-table .platform-users-filter-cell select {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  max-width: 100%;
+  height: 44px;
   min-height: 44px;
-  box-sizing: border-box;
+  padding: 10px 13px;
+  border: 1px solid #cfdde2;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
 }
 
-.platform-users-filter-actions {
+.platform-users-table .platform-users-filter-actions {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-end;
   gap: 8px;
-  width: 100%;
   min-width: 0;
-  box-sizing: border-box;
 }
 
-.platform-users-filter-actions .secondary {
+.platform-users-table .platform-users-filter-actions .secondary {
+  width: auto;
   min-width: 0;
-  max-width: 100%;
+  margin: 0;
 }
 
 .platform-filter-check {
@@ -607,8 +612,6 @@ footer small {
   background: #fff;
 }
 .platform-table.platform-users-table {
-  width: 100%;
-  min-width: 760px;
   table-layout: fixed;
 }
 .platform-table th,
@@ -627,8 +630,6 @@ footer small {
 .platform-table td {
   color: var(--ink);
   font-size: 13px;
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 .platform-empty-row {
   padding: 28px 18px !important;
@@ -671,26 +672,34 @@ footer small {
   display: none;
 }
 .platform-detail-cell {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: 10px;
+  min-width: 0;
+  vertical-align: top;
+}
+.platform-detail-content {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  margin-left: 10px;
+  vertical-align: top;
 }
 .platform-detail-cell b,
 .platform-detail-cell small {
   min-width: 0;
 }
 .platform-detail-cell small {
-  grid-column: 2;
+  margin-top: 4px;
   color: #738488;
   overflow-wrap: anywhere;
+  word-break: normal;
 }
 .tenant-swatch {
-  grid-row: span 2;
+  display: inline-block;
   width: 14px;
   height: 14px;
+  margin-top: 2px;
   border-radius: 50%;
   box-shadow: 0 0 0 3px #eef3f4;
+  vertical-align: top;
 }
 @media (max-width: 850px) {
   .report-metric-grid {
