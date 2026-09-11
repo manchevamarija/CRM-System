@@ -73,7 +73,7 @@ The repository is the shared implementation for BAU, DIGITMAK, VEZILKA and HPC. 
 ### Platform administration
 
 - Dedicated `PlatformAdmin` role and authorization policy for global cross-tenant operations.
-- Separate `/platform-admin` interface for platform-wide overview metrics, centre-level totals, global users, tenant memberships, status badges, search, and CSV export.
+- Separate `/platform-admin` interface for platform-wide overview metrics, centre-level totals, global users, tenant memberships, status badges, advanced filters, search, and CSV export.
 - Platform administrators use this area to supervise BAU, DIGITMAK, VEZILKA, and HPC from one place without replacing each centre's local administrator.
 - The global view is intended for coordination, reporting, cross-centre visibility, and user governance across the shared CRM database.
 - `/api/platform-admin/*` endpoints use explicit platform-admin authorization before reading across tenant query filters.
@@ -163,6 +163,8 @@ The frontend will be available at:
 http://localhost:5173
 ```
 
+Local frontend origins (`localhost` and `127.0.0.1` on ports `5173` and `3000`) are automatically allowed only outside production, so the development workflow stays unchanged.
+
 To start both applications together, run:
 
 ```text
@@ -214,6 +216,12 @@ docker compose up --build
 Technical documentation is available in the `docs` directory.
 
 Additional setup and project handover information is available in `HANDOFF-MK.md`.
+
+## Deployment Hardening
+
+Production startup validates that required secrets and infrastructure settings are present before the API starts. The production environment must provide a real PostgreSQL connection string, SMTP configuration, public HTTPS URL, upload/scanning settings, bootstrap administrator credentials, explicit CORS origins, and non-wildcard `AllowedHosts`.
+
+Sensitive endpoints such as sign-in, refresh, registration, email verification, password reset, password change, and public contact-request submission are protected with fixed-window rate limiting. Security headers, HSTS, HTTPS redirection, forwarded headers, tenant isolation, and platform-admin-only cross-tenant access are enabled for production while localhost development remains available through the standard start scripts.
 
 ## Email Configuration
 

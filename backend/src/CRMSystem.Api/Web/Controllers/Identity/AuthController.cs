@@ -39,6 +39,7 @@ public sealed partial class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("sensitive")]
     public async Task<IResult> Register(RegisterRequest request)
     {
         if (!request.TermsAccepted)

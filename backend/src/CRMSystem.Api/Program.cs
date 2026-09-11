@@ -33,15 +33,16 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddPortalHealthChecks();
 var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-var corsOrigins = configuredOrigins
-    .Concat([
+var localOrigins = builder.Environment.IsProduction()
+    ? []
+    : new[]
+    {
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-    ])
-    .Distinct(StringComparer.OrdinalIgnoreCase)
-    .ToArray();
+    };
+var corsOrigins = configuredOrigins.Concat(localOrigins).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
 builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
         policy

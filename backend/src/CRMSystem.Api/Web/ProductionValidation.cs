@@ -19,6 +19,8 @@ public static class ProductionValidation
             "ADMIN_BOOTSTRAP_PASSWORD",
             "UPLOADS_ROOT",
             "CLAMAV_HOST",
+            "AllowedHosts",
+            "Cors:AllowedOrigins:0",
             "Brand:Id",
             "Brand:Name",
             "Brand:LegalName",
@@ -38,5 +40,14 @@ public static class ProductionValidation
             throw new InvalidOperationException(
                 "Jwt:Key must contain at least 64 characters in production."
             );
+        if (config["AllowedHosts"] is "*" or "")
+            throw new InvalidOperationException(
+                "AllowedHosts must name the production host instead of using '*'."
+            );
+        if (
+            !Uri.TryCreate(config["APP_PUBLIC_URL"], UriKind.Absolute, out var publicUrl)
+            || publicUrl.Scheme != Uri.UriSchemeHttps
+        )
+            throw new InvalidOperationException("APP_PUBLIC_URL must use HTTPS in production.");
     }
 }

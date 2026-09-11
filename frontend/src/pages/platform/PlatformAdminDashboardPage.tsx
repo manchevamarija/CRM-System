@@ -71,6 +71,18 @@ const copy = {
       clear: "Исчисти",
       noResults: "Нема корисници што одговараат на пребарувањето.",
     },
+    filters: {
+      centreSearch: "Пребарај центри",
+      centrePlaceholder: "Центар или ID",
+      overdueOnly: "Само со пробиени рокови",
+      status: "Статус",
+      role: "Улога",
+      centre: "Центар",
+      allStatuses: "Сите статуси",
+      allRoles: "Сите улоги",
+      allCentres: "Сите центри",
+      noCentreResults: "Нема центри што одговараат на филтрите.",
+    },
     export: {
       tenants: "Извези центри",
       users: "Извези корисници",
@@ -133,6 +145,18 @@ const copy = {
       placeholder: "Name, email, role or centre",
       clear: "Clear",
       noResults: "No users match your search.",
+    },
+    filters: {
+      centreSearch: "Search centres",
+      centrePlaceholder: "Centre or ID",
+      overdueOnly: "Only with overdue services",
+      status: "Status",
+      role: "Role",
+      centre: "Centre",
+      allStatuses: "All statuses",
+      allRoles: "All roles",
+      allCentres: "All centres",
+      noCentreResults: "No centres match the filters.",
     },
     export: {
       tenants: "Export centres",
@@ -198,6 +222,18 @@ const copy = {
       placeholder: "Emër, email, rol ose qendër",
       clear: "Pastro",
       noResults: "Asnjë përdorues nuk përputhet me kërkimin.",
+    },
+    filters: {
+      centreSearch: "Kërko qendra",
+      centrePlaceholder: "Qendër ose ID",
+      overdueOnly: "Vetëm me afate të vonuara",
+      status: "Statusi",
+      role: "Roli",
+      centre: "Qendra",
+      allStatuses: "Të gjitha statuset",
+      allRoles: "Të gjitha rolet",
+      allCentres: "Të gjitha qendrat",
+      noCentreResults: "Asnjë qendër nuk përputhet me filtrat.",
     },
     export: {
       tenants: "Eksporto qendrat",
@@ -317,6 +353,8 @@ export function PlatformAdminDashboardPage({
               <TenantTable
                 tenants={overview.data.tenants}
                 labels={text.tenantColumns}
+                search={text.search}
+                filters={text.filters}
                 exportLabel={text.export.tenants}
                 emptyText={text.empty.tenants}
               />
@@ -329,6 +367,7 @@ export function PlatformAdminDashboardPage({
                 labels={text.userColumns}
                 language={language}
                 search={text.search}
+                filters={text.filters}
                 exportLabel={text.export.users}
                 loadingText={text.loading}
                 emptyText={text.empty.users}
@@ -376,22 +415,72 @@ function PlatformTotalsGrid({
 function TenantTable({
   tenants,
   labels,
+  search,
+  filters,
   exportLabel,
   emptyText,
 }: {
   tenants: PlatformTenant[];
   labels: (typeof copy)["mk"]["tenantColumns"];
+  search: (typeof copy)["mk"]["search"];
+  filters: (typeof copy)["mk"]["filters"];
   exportLabel: string;
   emptyText: string;
 }) {
+  const [query, setQuery] = useState("");
+  const [overdueOnly, setOverdueOnly] = useState(false);
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const filteredTenants = useMemo(
+    () =>
+      tenants.filter((tenant) => {
+        const matchesQuery =
+          !normalizedQuery ||
+          [tenant.name, tenant.id]
+            .join(" ")
+            .toLocaleLowerCase()
+            .includes(normalizedQuery);
+        const matchesOverdue = !overdueOnly || tenant.overdueServices > 0;
+        return matchesQuery && matchesOverdue;
+      }),
+    [normalizedQuery, overdueOnly, tenants],
+  );
+  const emptyMessage =
+    normalizedQuery || overdueOnly ? filters.noCentreResults : emptyText;
+
   return (
     <section className="meeting-card platform-table-card">
-      <div className="platform-table-toolbar platform-table-toolbar-right">
+      <div className="platform-table-toolbar">
+        <label className="platform-search">
+          <span>{filters.centreSearch}</span>
+          <input
+            type="search"
+            value={query}
+            placeholder={filters.centrePlaceholder}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <label className="platform-filter-check">
+          <input
+            type="checkbox"
+            checked={overdueOnly}
+            onChange={(event) => setOverdueOnly(event.target.checked)}
+          />
+          <span>{filters.overdueOnly}</span>
+        </label>
+        {query && (
+          <button
+            className="secondary"
+            type="button"
+            onClick={() => setQuery("")}
+          >
+            {search.clear}
+          </button>
+        )}
         <button
           className="secondary platform-export-button"
           type="button"
-          onClick={() => exportTenantsCsv(tenants, labels)}
-          disabled={tenants.length === 0}
+          onClick={() => exportTenantsCsv(filteredTenants, labels)}
+          disabled={filteredTenants.length === 0}
         >
           {exportLabel}
         </button>
@@ -414,14 +503,14 @@ function TenantTable({
             </tr>
           </thead>
           <tbody>
-            {tenants.length === 0 ? (
+            {filteredTenants.length === 0 ? (
               <tr>
                 <td className="platform-empty-row" colSpan={11}>
-                  {emptyText}
+                  {emptyMessage}
                 </td>
               </tr>
             ) : (
-              tenants.map((tenant) => (
+              filteredTenants.map((tenant) => (
                 <tr key={tenant.id}>
                   <td className="platform-detail-cell">
                     <span
@@ -448,10 +537,10 @@ function TenantTable({
         </table>
       </div>
       <div className="platform-mobile-list">
-        {tenants.length === 0 ? (
-          <p className="platform-mobile-empty">{emptyText}</p>
+        {filteredTenants.length === 0 ? (
+          <p className="platform-mobile-empty">{emptyMessage}</p>
         ) : (
-          tenants.map((tenant) => (
+          filteredTenants.map((tenant) => (
             <article className="platform-mobile-row" key={tenant.id}>
               <header>
                 <span
@@ -496,6 +585,7 @@ function UsersTable({
   labels,
   language,
   search,
+  filters,
   exportLabel,
   loadingText,
   emptyText,
@@ -506,15 +596,49 @@ function UsersTable({
   labels: (typeof copy)["mk"]["userColumns"];
   language: Language;
   search: (typeof copy)["mk"]["search"];
+  filters: (typeof copy)["mk"]["filters"];
   exportLabel: string;
   loadingText: string;
   emptyText: string;
 }) {
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [centreFilter, setCentreFilter] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase();
+  const statusOptions = useMemo(
+    () => Array.from(new Set(users.map((user) => user.status))).sort(),
+    [users],
+  );
+  const roleOptions = useMemo(
+    () =>
+      Array.from(new Set(users.flatMap((user) => user.roles))).sort((a, b) =>
+        labelFor(a, language).localeCompare(labelFor(b, language)),
+      ),
+    [language, users],
+  );
+  const centreOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          users.flatMap((user) =>
+            user.memberships.map((membership) => membership.tenantId),
+          ),
+        ),
+      ).sort(),
+    [users],
+  );
   const filteredUsers = useMemo(() => {
-    if (!normalizedQuery) return users;
     return users.filter((user) => {
+      const matchesStatus = !statusFilter || user.status === statusFilter;
+      const matchesRole = !roleFilter || user.roles.includes(roleFilter);
+      const matchesCentre =
+        !centreFilter ||
+        user.memberships.some(
+          (membership) => membership.tenantId === centreFilter,
+        );
+      if (!matchesStatus || !matchesRole || !matchesCentre) return false;
+      if (!normalizedQuery) return true;
       const searchable = [
         user.firstName,
         user.lastName,
@@ -531,8 +655,23 @@ function UsersTable({
         .toLocaleLowerCase();
       return searchable.includes(normalizedQuery);
     });
-  }, [language, normalizedQuery, users]);
-  const emptyMessage = normalizedQuery ? search.noResults : emptyText;
+  }, [
+    centreFilter,
+    language,
+    normalizedQuery,
+    roleFilter,
+    statusFilter,
+    users,
+  ]);
+  const hasFilters =
+    !!normalizedQuery || !!statusFilter || !!roleFilter || !!centreFilter;
+  const emptyMessage = hasFilters ? search.noResults : emptyText;
+  const clearFilters = () => {
+    setQuery("");
+    setStatusFilter("");
+    setRoleFilter("");
+    setCentreFilter("");
+  };
 
   return (
     <section className="meeting-card platform-table-card">
@@ -548,12 +687,50 @@ function UsersTable({
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        {query && (
-          <button
-            className="secondary"
-            type="button"
-            onClick={() => setQuery("")}
+        <label className="platform-filter-select">
+          <span>{filters.status}</span>
+          <select
+            value={statusFilter}
+            onChange={(event) => setStatusFilter(event.target.value)}
           >
+            <option value="">{filters.allStatuses}</option>
+            {statusOptions.map((status) => (
+              <option key={status} value={status}>
+                {labelFor(status, language)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="platform-filter-select">
+          <span>{filters.role}</span>
+          <select
+            value={roleFilter}
+            onChange={(event) => setRoleFilter(event.target.value)}
+          >
+            <option value="">{filters.allRoles}</option>
+            {roleOptions.map((role) => (
+              <option key={role} value={role}>
+                {labelFor(role, language)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="platform-filter-select">
+          <span>{filters.centre}</span>
+          <select
+            value={centreFilter}
+            onChange={(event) => setCentreFilter(event.target.value)}
+          >
+            <option value="">{filters.allCentres}</option>
+            {centreOptions.map((centre) => (
+              <option key={centre} value={centre}>
+                {centre}
+              </option>
+            ))}
+          </select>
+        </label>
+        {hasFilters && (
+          <button className="secondary" type="button" onClick={clearFilters}>
             {search.clear}
           </button>
         )}

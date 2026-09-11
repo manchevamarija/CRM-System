@@ -501,13 +501,15 @@ footer small {
   gap: 7px;
   min-width: 0;
 }
-.platform-search span {
+.platform-search span,
+.platform-filter-select span {
   color: #687980;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
 }
-.platform-search input {
+.platform-search input,
+.platform-filter-select select {
   width: 100%;
   min-height: 44px;
   padding: 10px 13px;
@@ -515,6 +517,30 @@ footer small {
   border-radius: 6px;
   background: #fff;
   color: var(--ink);
+}
+.platform-filter-select {
+  display: grid;
+  gap: 7px;
+  min-width: 145px;
+}
+.platform-filter-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #cfdde2;
+  border-radius: 6px;
+  background: #fff;
+  color: #173f5f;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.platform-filter-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #23657a;
 }
 .platform-table-scroll {
   overflow-x: auto;
@@ -645,6 +671,13 @@ footer small {
     align-items: stretch;
     flex-direction: column;
     padding: 14px;
+  }
+  .platform-filter-select {
+    min-width: 0;
+  }
+  .platform-filter-check {
+    justify-content: flex-start;
+    white-space: normal;
   }
   .platform-table-toolbar .secondary,
   .platform-export-button {
