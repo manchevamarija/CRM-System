@@ -3934,10 +3934,10 @@ footer .brand.invert img.crm-system-logo {
 
 @media (min-width: 901px) {
   section.help-strip > button.light {
-    left: -30px !important;
-    transform: translateX(-100px) !important;
+    left: 0 !important;
+    transform: translateX(130px) !important;
   }
   section.help-strip > button.light:hover {
-    transform: translate(-30px, -3px) !important;
+    transform: translate(130px, -3px) !important;
   }
 }
