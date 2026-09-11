@@ -683,7 +683,7 @@ function UsersTable({
     <section className="meeting-card platform-table-card">
       {loading && <p>{loadingText}</p>}
       {error && <p className="form-error">{error}</p>}
-      <div className="platform-table-toolbar">
+      <div className="platform-table-toolbar platform-users-toolbar">
         <label className="platform-search">
           <span>{search.label}</span>
           <input
@@ -735,22 +735,31 @@ function UsersTable({
             ))}
           </select>
         </label>
-        {hasFilters && (
-          <button className="secondary" type="button" onClick={clearFilters}>
-            {search.clear}
+        <div className="platform-toolbar-actions">
+          {hasFilters && (
+            <button className="secondary" type="button" onClick={clearFilters}>
+              {search.clear}
+            </button>
+          )}
+          <button
+            className="secondary platform-export-button"
+            type="button"
+            onClick={() => exportUsersCsv(filteredUsers, labels, language)}
+            disabled={filteredUsers.length === 0}
+          >
+            {exportLabel}
           </button>
-        )}
-        <button
-          className="secondary platform-export-button"
-          type="button"
-          onClick={() => exportUsersCsv(filteredUsers, labels, language)}
-          disabled={filteredUsers.length === 0}
-        >
-          {exportLabel}
-        </button>
+        </div>
       </div>
       <div className="platform-table-scroll">
-        <table className="platform-table">
+        <table className="platform-table platform-users-table">
+          <colgroup>
+            <col style={{ width: "30%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "26%" }} />
+            <col style={{ width: "18%" }} />
+            <col style={{ width: "14%" }} />
+          </colgroup>
           <thead>
             <tr>
               <th>{labels.user}</th>
