@@ -684,74 +684,6 @@ function UsersTable({
       {loading && <p>{loadingText}</p>}
       {error && <p className="form-error">{error}</p>}
       <div className="platform-table-scroll platform-users-scroll">
-        <div className="platform-table-toolbar platform-users-toolbar">
-        <label className="platform-search">
-          <span>{search.label}</span>
-          <input
-            type="search"
-            value={query}
-            placeholder={search.placeholder}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-        <label className="platform-filter-select">
-          <span>{filters.status}</span>
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-          >
-            <option value="">{filters.allStatuses}</option>
-            {statusOptions.map((status) => (
-              <option key={status} value={status}>
-                {labelFor(status, language)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="platform-filter-select">
-          <span>{filters.role}</span>
-          <select
-            value={roleFilter}
-            onChange={(event) => setRoleFilter(event.target.value)}
-          >
-            <option value="">{filters.allRoles}</option>
-            {roleOptions.map((role) => (
-              <option key={role} value={role}>
-                {labelFor(role, language)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="platform-filter-select">
-          <span>{filters.centre}</span>
-          <select
-            value={centreFilter}
-            onChange={(event) => setCentreFilter(event.target.value)}
-          >
-            <option value="">{filters.allCentres}</option>
-            {centreOptions.map((centre) => (
-              <option key={centre} value={centre}>
-                {centre}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="platform-toolbar-actions">
-          {hasFilters && (
-            <button className="secondary" type="button" onClick={clearFilters}>
-              {search.clear}
-            </button>
-          )}
-          <button
-            className="secondary platform-export-button"
-            type="button"
-            onClick={() => exportUsersCsv(filteredUsers, labels, language)}
-            disabled={filteredUsers.length === 0}
-          >
-            {exportLabel}
-          </button>
-        </div>
-        </div>
         <table className="platform-table platform-users-table">
           <colgroup>
             <col style={{ width: "30%" }} />
@@ -761,6 +693,84 @@ function UsersTable({
             <col style={{ width: "14%" }} />
           </colgroup>
           <thead>
+            <tr className="platform-users-filter-row">
+              <th className="platform-users-filter-cell">
+                <label>
+                  <span>{search.label}</span>
+                  <input
+                    type="search"
+                    value={query}
+                    placeholder={search.placeholder}
+                    onChange={(event) => setQuery(event.target.value)}
+                  />
+                </label>
+              </th>
+              <th className="platform-users-filter-cell">
+                <label>
+                  <span>{filters.status}</span>
+                  <select
+                    value={statusFilter}
+                    onChange={(event) => setStatusFilter(event.target.value)}
+                  >
+                    <option value="">{filters.allStatuses}</option>
+                    {statusOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {labelFor(status, language)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </th>
+              <th className="platform-users-filter-cell">
+                <label>
+                  <span>{filters.role}</span>
+                  <select
+                    value={roleFilter}
+                    onChange={(event) => setRoleFilter(event.target.value)}
+                  >
+                    <option value="">{filters.allRoles}</option>
+                    {roleOptions.map((role) => (
+                      <option key={role} value={role}>
+                        {labelFor(role, language)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </th>
+              <th className="platform-users-filter-cell">
+                <label>
+                  <span>{filters.centre}</span>
+                  <select
+                    value={centreFilter}
+                    onChange={(event) => setCentreFilter(event.target.value)}
+                  >
+                    <option value="">{filters.allCentres}</option>
+                    {centreOptions.map((centre) => (
+                      <option key={centre} value={centre}>
+                        {centre}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </th>
+              <th className="platform-users-filter-cell">
+                <div className="platform-users-filter-actions">
+                  {hasFilters && (
+                    <button className="secondary" type="button" onClick={clearFilters}>
+                      {search.clear}
+                    </button>
+                  )}
+                  <button
+                    className="secondary platform-export-button"
+                    type="button"
+                    onClick={() => exportUsersCsv(filteredUsers, labels, language)}
+                    disabled={filteredUsers.length === 0}
+                  >
+                    {exportLabel}
+                  </button>
+                </div>
+              </th>
+            </tr>
             <tr>
               <th>{labels.user}</th>
               <th>{labels.status}</th>
@@ -768,7 +778,6 @@ function UsersTable({
               <th>{labels.memberships}</th>
               <th>{labels.lastLogin}</th>
             </tr>
-
           </thead>
           <tbody>
             {!loading && filteredUsers.length === 0 ? (
