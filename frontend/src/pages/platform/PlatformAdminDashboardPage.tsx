@@ -171,10 +171,10 @@ const copy = {
     users: "Përdorues",
     descriptions: {
       overview:
-        "Pamje globale e të gjitha qendrave, përdoruesve dhe aktivitetit CRM.",
+          "Pamje globale e të gjitha qendrave, përdoruesve dhe aktivitetit CRM.",
       tenants: "Krahasoni vëllimin CRM, shërbimet dhe ekipin sipas qendrës.",
       users:
-        "Kërkoni dhe shqyrtoni përdoruesit, rolet dhe anëtarësimet në qendra.",
+          "Kërkoni dhe shqyrtoni përdoruesit, rolet dhe anëtarësimet në qendra.",
     },
     noAccess: "Nuk keni qasje në platform admin.",
     back: "Prapa",
@@ -243,8 +243,8 @@ const copy = {
 };
 
 export function PlatformAdminDashboardPage({
-  onNavigate,
-}: {
+                                             onNavigate,
+                                           }: {
   onNavigate: Navigate;
 }) {
   const language = usePortalLanguage();
@@ -253,137 +253,137 @@ export function PlatformAdminDashboardPage({
   const allowed = !!user?.roles.includes("PlatformAdmin");
   const [tab, setTab] = useState<Tab>("overview");
   const overview = useApiResource<PlatformOverview>(
-    "/api/platform-admin/overview",
-    allowed,
+      "/api/platform-admin/overview",
+      allowed,
   );
   const users = useApiResource<PlatformUser[]>(
-    "/api/platform-admin/users",
-    allowed && tab === "users",
+      "/api/platform-admin/users",
+      allowed && tab === "users",
   );
   const tenantCount = overview.data?.tenants.length ?? 0;
   const userCount = users.data?.length ?? overview.data?.totals.users ?? 0;
 
   if (user && !allowed)
     return (
-      <section className="page">
-        <h1>{text.noAccess}</h1>
-        <button className="secondary" onClick={() => onNavigate("dashboard")}>
-          {text.back}
-        </button>
-      </section>
+        <section className="page">
+          <h1>{text.noAccess}</h1>
+          <button className="secondary" onClick={() => onNavigate("dashboard")}>
+            {text.back}
+          </button>
+        </section>
     );
 
   return (
-    <section className="dashboard admin platform-admin">
-      <aside>
-        <div className="user">
-          <span>PA</span>
-          <div>
-            <b>{user?.email ?? text.title}</b>
-            <small>{text.eyebrow}</small>
+      <section className="dashboard admin platform-admin">
+        <aside>
+          <div className="user">
+            <span>PA</span>
+            <div>
+              <b>{user?.email ?? text.title}</b>
+              <small>{text.eyebrow}</small>
+            </div>
           </div>
-        </div>
-        <button
-          className="logout"
-          onClick={async () => {
-            await logout();
-            onNavigate("home");
-          }}
-        >
-          {text.logout}
-        </button>
-        <button
-          className={tab === "overview" ? "sel" : ""}
-          onClick={() => setTab("overview")}
-        >
-          <span>{text.overview}</span>
-          <span>›</span>
-        </button>
-        <button
-          className={tab === "tenants" ? "sel" : ""}
-          onClick={() => setTab("tenants")}
-        >
+          <button
+              className="logout"
+              onClick={async () => {
+                await logout();
+                onNavigate("home");
+              }}
+          >
+            {text.logout}
+          </button>
+          <button
+              className={tab === "overview" ? "sel" : ""}
+              onClick={() => setTab("overview")}
+          >
+            <span>{text.overview}</span>
+            <span>›</span>
+          </button>
+          <button
+              className={tab === "tenants" ? "sel" : ""}
+              onClick={() => setTab("tenants")}
+          >
           <span>
             {text.tenants}
             <small className="platform-tab-count">{tenantCount}</small>
           </span>
-          <span>›</span>
-        </button>
-        <button
-          className={tab === "users" ? "sel" : ""}
-          onClick={() => setTab("users")}
-        >
+            <span>›</span>
+          </button>
+          <button
+              className={tab === "users" ? "sel" : ""}
+              onClick={() => setTab("users")}
+          >
           <span>
             {text.users}
             <small className="platform-tab-count">{userCount}</small>
           </span>
-          <span>›</span>
-        </button>
-        <button onClick={() => onNavigate("admin")}>Admin ›</button>
-      </aside>
-      <div className="dash-main">
-        <div className="dash-head">
-          <div>
-            <span>{text.eyebrow}</span>
-            <h1>
-              {tab === "overview"
-                ? text.overview
-                : tab === "tenants"
-                  ? text.tenants
-                  : text.users}
-            </h1>
-            <p className="platform-admin-description">
-              {text.descriptions[tab]}
-            </p>
+            <span>›</span>
+          </button>
+          <button onClick={() => onNavigate("admin")}>Admin ›</button>
+        </aside>
+        <div className="dash-main">
+          <div className="dash-head">
+            <div>
+              <span>{text.eyebrow}</span>
+              <h1>
+                {tab === "overview"
+                    ? text.overview
+                    : tab === "tenants"
+                        ? text.tenants
+                        : text.users}
+              </h1>
+              <p className="platform-admin-description">
+                {text.descriptions[tab]}
+              </p>
+            </div>
           </div>
+          {overview.error && (
+              <p className="form-error dashboard-feedback">{overview.error}</p>
+          )}
+          {overview.loading && <p>{text.loading}</p>}
+          {overview.data && (
+              <>
+                {tab === "overview" && (
+                    <PlatformTotalsGrid
+                        overview={overview.data}
+                        labels={text.totals}
+                    />
+                )}
+                {tab === "tenants" && (
+                    <TenantTable
+                        tenants={overview.data.tenants}
+                        labels={text.tenantColumns}
+                        search={text.search}
+                        filters={text.filters}
+                        exportLabel={text.export.tenants}
+                        emptyText={text.empty.tenants}
+                    />
+                )}
+                {tab === "users" && (
+                    <UsersTable
+                        users={users.data ?? []}
+                        loading={users.loading}
+                        error={users.error}
+                        labels={text.userColumns}
+                        language={language}
+                        search={text.search}
+                        filters={text.filters}
+                        exportLabel={text.export.users}
+                        loadingText={text.loading}
+                        emptyText={text.empty.users}
+                    />
+                )}
+              </>
+          )}
         </div>
-        {overview.error && (
-          <p className="form-error dashboard-feedback">{overview.error}</p>
-        )}
-        {overview.loading && <p>{text.loading}</p>}
-        {overview.data && (
-          <>
-            {tab === "overview" && (
-              <PlatformTotalsGrid
-                overview={overview.data}
-                labels={text.totals}
-              />
-            )}
-            {tab === "tenants" && (
-              <TenantTable
-                tenants={overview.data.tenants}
-                labels={text.tenantColumns}
-                search={text.search}
-                filters={text.filters}
-                exportLabel={text.export.tenants}
-                emptyText={text.empty.tenants}
-              />
-            )}
-            {tab === "users" && (
-              <UsersTable
-                users={users.data ?? []}
-                loading={users.loading}
-                error={users.error}
-                labels={text.userColumns}
-                language={language}
-                search={text.search}
-                filters={text.filters}
-                exportLabel={text.export.users}
-                loadingText={text.loading}
-                emptyText={text.empty.users}
-              />
-            )}
-          </>
-        )}
-      </div>
-    </section>
+      </section>
   );
 }
 
 function PlatformTotalsGrid({
-  overview,
-  labels,
-}: {
+                              overview,
+                              labels,
+                            }: {
   overview: PlatformOverview;
   labels: (typeof copy)["mk"]["totals"];
 }) {
@@ -401,25 +401,25 @@ function PlatformTotalsGrid({
     ["platformAdmins", overview.totals.platformAdmins],
   ] as const;
   return (
-    <div className="platform-metric-grid">
-      {items.map(([key, value]) => (
-        <article key={key}>
-          <span>{labels[key]}</span>
-          <b>{value}</b>
-        </article>
-      ))}
-    </div>
+      <div className="platform-metric-grid">
+        {items.map(([key, value]) => (
+            <article key={key}>
+              <span>{labels[key]}</span>
+              <b>{value}</b>
+            </article>
+        ))}
+      </div>
   );
 }
 
 function TenantTable({
-  tenants,
-  labels,
-  search,
-  filters,
-  exportLabel,
-  emptyText,
-}: {
+                       tenants,
+                       labels,
+                       search,
+                       filters,
+                       exportLabel,
+                       emptyText,
+                     }: {
   tenants: PlatformTenant[];
   labels: (typeof copy)["mk"]["tenantColumns"];
   search: (typeof copy)["mk"]["search"];
@@ -431,63 +431,63 @@ function TenantTable({
   const [overdueOnly, setOverdueOnly] = useState(false);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredTenants = useMemo(
-    () =>
-      tenants.filter((tenant) => {
-        const matchesQuery =
-          !normalizedQuery ||
-          [tenant.name, tenant.id]
-            .join(" ")
-            .toLocaleLowerCase()
-            .includes(normalizedQuery);
-        const matchesOverdue = !overdueOnly || tenant.overdueServices > 0;
-        return matchesQuery && matchesOverdue;
-      }),
-    [normalizedQuery, overdueOnly, tenants],
+      () =>
+          tenants.filter((tenant) => {
+            const matchesQuery =
+                !normalizedQuery ||
+                [tenant.name, tenant.id]
+                    .join(" ")
+                    .toLocaleLowerCase()
+                    .includes(normalizedQuery);
+            const matchesOverdue = !overdueOnly || tenant.overdueServices > 0;
+            return matchesQuery && matchesOverdue;
+          }),
+      [normalizedQuery, overdueOnly, tenants],
   );
   const emptyMessage =
-    normalizedQuery || overdueOnly ? filters.noCentreResults : emptyText;
+      normalizedQuery || overdueOnly ? filters.noCentreResults : emptyText;
 
   return (
-    <section className="meeting-card platform-table-card">
-      <div className="platform-table-toolbar">
-        <label className="platform-search">
-          <span>{filters.centreSearch}</span>
-          <input
-            type="search"
-            value={query}
-            placeholder={filters.centrePlaceholder}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
-        <label className="platform-filter-check">
-          <input
-            type="checkbox"
-            checked={overdueOnly}
-            onChange={(event) => setOverdueOnly(event.target.checked)}
-          />
-          <span>{filters.overdueOnly}</span>
-        </label>
-        {query && (
+      <section className="meeting-card platform-table-card">
+        <div className="platform-table-toolbar">
+          <label className="platform-search">
+            <span>{filters.centreSearch}</span>
+            <input
+                type="search"
+                value={query}
+                placeholder={filters.centrePlaceholder}
+                onChange={(event) => setQuery(event.target.value)}
+            />
+          </label>
+          <label className="platform-filter-check">
+            <input
+                type="checkbox"
+                checked={overdueOnly}
+                onChange={(event) => setOverdueOnly(event.target.checked)}
+            />
+            <span>{filters.overdueOnly}</span>
+          </label>
+          {query && (
+              <button
+                  className="secondary"
+                  type="button"
+                  onClick={() => setQuery("")}
+              >
+                {search.clear}
+              </button>
+          )}
           <button
-            className="secondary"
-            type="button"
-            onClick={() => setQuery("")}
+              className="secondary platform-export-button"
+              type="button"
+              onClick={() => exportTenantsCsv(filteredTenants, labels)}
+              disabled={filteredTenants.length === 0}
           >
-            {search.clear}
+            {exportLabel}
           </button>
-        )}
-        <button
-          className="secondary platform-export-button"
-          type="button"
-          onClick={() => exportTenantsCsv(filteredTenants, labels)}
-          disabled={filteredTenants.length === 0}
-        >
-          {exportLabel}
-        </button>
-      </div>
-      <div className="platform-table-scroll">
-        <table className="platform-table">
-          <thead>
+        </div>
+        <div className="platform-table-scroll">
+          <table className="platform-table">
+            <thead>
             <tr>
               <th>{labels.centre}</th>
               <th>{labels.organizations}</th>
@@ -501,95 +501,97 @@ function TenantTable({
               <th>{labels.overdue}</th>
               <th>{labels.staff}</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {filteredTenants.length === 0 ? (
-              <tr>
-                <td className="platform-empty-row" colSpan={11}>
-                  {emptyMessage}
-                </td>
-              </tr>
-            ) : (
-              filteredTenants.map((tenant) => (
-                <tr key={tenant.id}>
-                  <td className="platform-detail-cell">
-                    <span
-                      className="tenant-swatch"
-                      style={{ background: tenant.primaryColor }}
-                    />
-                    <b>{tenant.name}</b>
-                    <small>{tenant.id}</small>
+                <tr>
+                  <td className="platform-empty-row" colSpan={11}>
+                    {emptyMessage}
                   </td>
-                  <td>{tenant.organizations}</td>
-                  <td>{tenant.contactRequests}</td>
-                  <td>{tenant.tickets}</td>
-                  <td>{tenant.meetings}</td>
-                  <td>{tenant.activeSubscriptions}</td>
-                  <td>{tenant.completedContactRequests}</td>
-                  <td>{tenant.averageDaysToServe}</td>
-                  <td>{tenant.totalServiceValue.toLocaleString()} €</td>
-                  <td>{tenant.overdueServices}</td>
-                  <td>{tenant.staffMemberships}</td>
                 </tr>
-              ))
+            ) : (
+                filteredTenants.map((tenant) => (
+                    <tr key={tenant.id}>
+                      <td className="platform-detail-cell">
+                    <span
+                        className="tenant-swatch"
+                        style={{ background: tenant.primaryColor }}
+                    />
+                        <div className="platform-detail-content">
+                          <b>{tenant.name}</b>
+                          <small>{tenant.id}</small>
+                        </div>
+                      </td>
+                      <td>{tenant.organizations}</td>
+                      <td>{tenant.contactRequests}</td>
+                      <td>{tenant.tickets}</td>
+                      <td>{tenant.meetings}</td>
+                      <td>{tenant.activeSubscriptions}</td>
+                      <td>{tenant.completedContactRequests}</td>
+                      <td>{tenant.averageDaysToServe}</td>
+                      <td>{tenant.totalServiceValue.toLocaleString()} €</td>
+                      <td>{tenant.overdueServices}</td>
+                      <td>{tenant.staffMemberships}</td>
+                    </tr>
+                ))
             )}
-          </tbody>
-        </table>
-      </div>
-      <div className="platform-mobile-list">
-        {filteredTenants.length === 0 ? (
-          <p className="platform-mobile-empty">{emptyMessage}</p>
-        ) : (
-          filteredTenants.map((tenant) => (
-            <article className="platform-mobile-row" key={tenant.id}>
-              <header>
+            </tbody>
+          </table>
+        </div>
+        <div className="platform-mobile-list">
+          {filteredTenants.length === 0 ? (
+              <p className="platform-mobile-empty">{emptyMessage}</p>
+          ) : (
+              filteredTenants.map((tenant) => (
+                  <article className="platform-mobile-row" key={tenant.id}>
+                    <header>
                 <span
-                  className="tenant-swatch"
-                  style={{ background: tenant.primaryColor }}
+                    className="tenant-swatch"
+                    style={{ background: tenant.primaryColor }}
                 />
-                <div>
-                  <b>{tenant.name}</b>
-                  <small>{tenant.id}</small>
-                </div>
-              </header>
-              <dl>
-                <div>
-                  <dt>{labels.contacts}</dt>
-                  <dd>{tenant.contactRequests}</dd>
-                </div>
-                <div>
-                  <dt>{labels.subscriptions}</dt>
-                  <dd>{tenant.activeSubscriptions}</dd>
-                </div>
-                <div>
-                  <dt>{labels.completed}</dt>
-                  <dd>{tenant.completedContactRequests}</dd>
-                </div>
-                <div>
-                  <dt>{labels.staff}</dt>
-                  <dd>{tenant.staffMemberships}</dd>
-                </div>
-              </dl>
-            </article>
-          ))
-        )}
-      </div>
-    </section>
+                      <div>
+                        <b>{tenant.name}</b>
+                        <small>{tenant.id}</small>
+                      </div>
+                    </header>
+                    <dl>
+                      <div>
+                        <dt>{labels.contacts}</dt>
+                        <dd>{tenant.contactRequests}</dd>
+                      </div>
+                      <div>
+                        <dt>{labels.subscriptions}</dt>
+                        <dd>{tenant.activeSubscriptions}</dd>
+                      </div>
+                      <div>
+                        <dt>{labels.completed}</dt>
+                        <dd>{tenant.completedContactRequests}</dd>
+                      </div>
+                      <div>
+                        <dt>{labels.staff}</dt>
+                        <dd>{tenant.staffMemberships}</dd>
+                      </div>
+                    </dl>
+                  </article>
+              ))
+          )}
+        </div>
+      </section>
   );
 }
 
 function UsersTable({
-  users,
-  loading,
-  error,
-  labels,
-  language,
-  search,
-  filters,
-  exportLabel,
-  loadingText,
-  emptyText,
-}: {
+                      users,
+                      loading,
+                      error,
+                      labels,
+                      language,
+                      search,
+                      filters,
+                      exportLabel,
+                      loadingText,
+                      emptyText,
+                    }: {
   users: PlatformUser[];
   loading: boolean;
   error: string;
@@ -607,39 +609,39 @@ function UsersTable({
   const [centreFilter, setCentreFilter] = useState("");
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const statusOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(["Active", ...users.map((user) => user.status)]),
-      ).sort(),
-    [users],
+      () =>
+          Array.from(
+              new Set(["Active", ...users.map((user) => user.status)]),
+          ).sort(),
+      [users],
   );
   const roleOptions = useMemo(
-    () =>
-      Array.from(new Set(users.flatMap((user) => user.roles))).sort((a, b) =>
-        labelFor(a, language).localeCompare(labelFor(b, language)),
-      ),
-    [language, users],
+      () =>
+          Array.from(new Set(users.flatMap((user) => user.roles))).sort((a, b) =>
+              labelFor(a, language).localeCompare(labelFor(b, language)),
+          ),
+      [language, users],
   );
   const centreOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          users.flatMap((user) =>
-            user.memberships.map((membership) => membership.tenantId),
-          ),
-        ),
-      ).sort(),
-    [users],
+      () =>
+          Array.from(
+              new Set(
+                  users.flatMap((user) =>
+                      user.memberships.map((membership) => membership.tenantId),
+                  ),
+              ),
+          ).sort(),
+      [users],
   );
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const matchesStatus = !statusFilter || user.status === statusFilter;
       const matchesRole = !roleFilter || user.roles.includes(roleFilter);
       const matchesCentre =
-        !centreFilter ||
-        user.memberships.some(
-          (membership) => membership.tenantId === centreFilter,
-        );
+          !centreFilter ||
+          user.memberships.some(
+              (membership) => membership.tenantId === centreFilter,
+          );
       if (!matchesStatus || !matchesRole || !matchesCentre) return false;
       if (!normalizedQuery) return true;
       const searchable = [
@@ -654,8 +656,8 @@ function UsersTable({
           labelFor(item.accessLevel, language),
         ]),
       ]
-        .join(" ")
-        .toLocaleLowerCase();
+          .join(" ")
+          .toLocaleLowerCase();
       return searchable.includes(normalizedQuery);
     });
   }, [
@@ -667,10 +669,10 @@ function UsersTable({
     users,
   ]);
   const hasFilters =
-    !!normalizedQuery ||
-    statusFilter !== "Active" ||
-    !!roleFilter ||
-    !!centreFilter;
+      !!normalizedQuery ||
+      statusFilter !== "Active" ||
+      !!roleFilter ||
+      !!centreFilter;
   const emptyMessage = hasFilters ? search.noResults : emptyText;
   const clearFilters = () => {
     setQuery("");
@@ -680,28 +682,28 @@ function UsersTable({
   };
 
   return (
-    <section className="meeting-card platform-table-card">
-      {loading && <p>{loadingText}</p>}
-      {error && <p className="form-error">{error}</p>}
-      <div className="platform-table-scroll platform-users-scroll">
-        <table className="platform-table platform-users-table">
-          <colgroup>
-            <col style={{ width: "30%" }} />
-            <col style={{ width: "12%" }} />
-            <col style={{ width: "26%" }} />
-            <col style={{ width: "18%" }} />
-            <col style={{ width: "14%" }} />
-          </colgroup>
-          <thead>
+      <section className="meeting-card platform-table-card">
+        {loading && <p>{loadingText}</p>}
+        {error && <p className="form-error">{error}</p>}
+        <div className="platform-table-scroll platform-users-scroll">
+          <table className="platform-table platform-users-table">
+            <colgroup>
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "26%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "14%" }} />
+            </colgroup>
+            <thead>
             <tr className="platform-users-filter-row">
               <th className="platform-users-filter-cell">
                 <label>
                   <span>{search.label}</span>
                   <input
-                    type="search"
-                    value={query}
-                    placeholder={search.placeholder}
-                    onChange={(event) => setQuery(event.target.value)}
+                      type="search"
+                      value={query}
+                      placeholder={search.placeholder}
+                      onChange={(event) => setQuery(event.target.value)}
                   />
                 </label>
               </th>
@@ -709,14 +711,14 @@ function UsersTable({
                 <label>
                   <span>{filters.status}</span>
                   <select
-                    value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value)}
+                      value={statusFilter}
+                      onChange={(event) => setStatusFilter(event.target.value)}
                   >
                     <option value="">{filters.allStatuses}</option>
                     {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {labelFor(status, language)}
-                      </option>
+                        <option key={status} value={status}>
+                          {labelFor(status, language)}
+                        </option>
                     ))}
                   </select>
                 </label>
@@ -725,14 +727,14 @@ function UsersTable({
                 <label>
                   <span>{filters.role}</span>
                   <select
-                    value={roleFilter}
-                    onChange={(event) => setRoleFilter(event.target.value)}
+                      value={roleFilter}
+                      onChange={(event) => setRoleFilter(event.target.value)}
                   >
                     <option value="">{filters.allRoles}</option>
                     {roleOptions.map((role) => (
-                      <option key={role} value={role}>
-                        {labelFor(role, language)}
-                      </option>
+                        <option key={role} value={role}>
+                          {labelFor(role, language)}
+                        </option>
                     ))}
                   </select>
                 </label>
@@ -741,14 +743,14 @@ function UsersTable({
                 <label>
                   <span>{filters.centre}</span>
                   <select
-                    value={centreFilter}
-                    onChange={(event) => setCentreFilter(event.target.value)}
+                      value={centreFilter}
+                      onChange={(event) => setCentreFilter(event.target.value)}
                   >
                     <option value="">{filters.allCentres}</option>
                     {centreOptions.map((centre) => (
-                      <option key={centre} value={centre}>
-                        {centre}
-                      </option>
+                        <option key={centre} value={centre}>
+                          {centre}
+                        </option>
                     ))}
                   </select>
                 </label>
@@ -756,15 +758,15 @@ function UsersTable({
               <th className="platform-users-filter-cell">
                 <div className="platform-users-filter-actions">
                   {hasFilters && (
-                    <button className="secondary" type="button" onClick={clearFilters}>
-                      {search.clear}
-                    </button>
+                      <button className="secondary" type="button" onClick={clearFilters}>
+                        {search.clear}
+                      </button>
                   )}
                   <button
-                    className="secondary platform-export-button"
-                    type="button"
-                    onClick={() => exportUsersCsv(filteredUsers, labels, language)}
-                    disabled={filteredUsers.length === 0}
+                      className="secondary platform-export-button"
+                      type="button"
+                      onClick={() => exportUsersCsv(filteredUsers, labels, language)}
+                      disabled={filteredUsers.length === 0}
                   >
                     {exportLabel}
                   </button>
@@ -778,117 +780,117 @@ function UsersTable({
               <th>{labels.memberships}</th>
               <th>{labels.lastLogin}</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             {!loading && filteredUsers.length === 0 ? (
-              <tr>
-                <td className="platform-empty-row" colSpan={5}>
-                  {emptyMessage}
-                </td>
-              </tr>
-            ) : (
-              filteredUsers.map((user) => (
-                <tr key={user.id}>
-                  <td className="platform-detail-cell">
-                    <b>
-                      {`${user.firstName} ${user.lastName}`.trim() ||
-                        user.email}
-                    </b>
-                    <small>{user.email}</small>
-                  </td>
-                  <td>
-                    <StatusBadge status={user.status} language={language} />
-                  </td>
-                  <td>
-                    {user.roles
-                      .map((role) => labelFor(role, language))
-                      .join(", ") || "-"}
-                  </td>
-                  <td>
-                    {user.memberships
-                      .map(
-                        (item) =>
-                          `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
-                      )
-                      .join(", ") || "-"}
-                  </td>
-                  <td>
-                    <span className="platform-date-cell">
-                      {formatDate(user.lastLoginAt)}
-                    </span>
+                <tr>
+                  <td className="platform-empty-row" colSpan={5}>
+                    {emptyMessage}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="platform-mobile-list">
-        {!loading && filteredUsers.length === 0 ? (
-          <p className="platform-mobile-empty">{emptyMessage}</p>
-        ) : (
-          filteredUsers.map((user) => (
-            <article className="platform-mobile-row" key={user.id}>
-              <header>
-                <div>
-                  <b>
-                    {`${user.firstName} ${user.lastName}`.trim() || user.email}
-                  </b>
-                  <small>{user.email}</small>
-                </div>
-              </header>
-              <dl>
-                <div>
-                  <dt>{labels.status}</dt>
-                  <dd>
-                    <StatusBadge status={user.status} language={language} />
-                  </dd>
-                </div>
-                <div>
-                  <dt>{labels.roles}</dt>
-                  <dd>
-                    {user.roles
-                      .map((role) => labelFor(role, language))
-                      .join(", ") || "-"}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{labels.memberships}</dt>
-                  <dd>
-                    {user.memberships
-                      .map(
-                        (item) =>
-                          `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
-                      )
-                      .join(", ") || "-"}
-                  </dd>
-                </div>
-                <div>
-                  <dt>{labels.lastLogin}</dt>
-                  <dd>
+            ) : (
+                filteredUsers.map((user) => (
+                    <tr key={user.id}>
+                      <td className="platform-detail-cell">
+                        <b>
+                          {`${user.firstName} ${user.lastName}`.trim() ||
+                              user.email}
+                        </b>
+                        <small>{user.email}</small>
+                      </td>
+                      <td>
+                        <StatusBadge status={user.status} language={language} />
+                      </td>
+                      <td>
+                        {user.roles
+                            .map((role) => labelFor(role, language))
+                            .join(", ") || "-"}
+                      </td>
+                      <td>
+                        {user.memberships
+                            .map(
+                                (item) =>
+                                    `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
+                            )
+                            .join(", ") || "-"}
+                      </td>
+                      <td>
                     <span className="platform-date-cell">
                       {formatDate(user.lastLoginAt)}
                     </span>
-                  </dd>
-                </div>
-              </dl>
-            </article>
-          ))
-        )}
-      </div>
-    </section>
+                      </td>
+                    </tr>
+                ))
+            )}
+            </tbody>
+          </table>
+        </div>
+        <div className="platform-mobile-list">
+          {!loading && filteredUsers.length === 0 ? (
+              <p className="platform-mobile-empty">{emptyMessage}</p>
+          ) : (
+              filteredUsers.map((user) => (
+                  <article className="platform-mobile-row" key={user.id}>
+                    <header>
+                      <div>
+                        <b>
+                          {`${user.firstName} ${user.lastName}`.trim() || user.email}
+                        </b>
+                        <small>{user.email}</small>
+                      </div>
+                    </header>
+                    <dl>
+                      <div>
+                        <dt>{labels.status}</dt>
+                        <dd>
+                          <StatusBadge status={user.status} language={language} />
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{labels.roles}</dt>
+                        <dd>
+                          {user.roles
+                              .map((role) => labelFor(role, language))
+                              .join(", ") || "-"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{labels.memberships}</dt>
+                        <dd>
+                          {user.memberships
+                              .map(
+                                  (item) =>
+                                      `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
+                              )
+                              .join(", ") || "-"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>{labels.lastLogin}</dt>
+                        <dd>
+                    <span className="platform-date-cell">
+                      {formatDate(user.lastLoginAt)}
+                    </span>
+                        </dd>
+                      </div>
+                    </dl>
+                  </article>
+              ))
+          )}
+        </div>
+      </section>
   );
 }
 
 function StatusBadge({
-  status,
-  language,
-}: {
+                       status,
+                       language,
+                     }: {
   status: PlatformUser["status"];
   language: Language;
 }) {
   return (
-    <span className={`platform-status-badge ${statusClass(status)}`}>
+      <span className={`platform-status-badge ${statusClass(status)}`}>
       {labelFor(status, language)}
     </span>
   );
@@ -909,8 +911,8 @@ function statusClass(status: PlatformUser["status"]) {
 }
 
 function exportTenantsCsv(
-  tenants: PlatformTenant[],
-  labels: (typeof copy)["mk"]["tenantColumns"],
+    tenants: PlatformTenant[],
+    labels: (typeof copy)["mk"]["tenantColumns"],
 ) {
   downloadCsv("platform-admin-centres.csv", [
     [
@@ -943,9 +945,9 @@ function exportTenantsCsv(
 }
 
 function exportUsersCsv(
-  users: PlatformUser[],
-  labels: (typeof copy)["mk"]["userColumns"],
-  language: Language,
+    users: PlatformUser[],
+    labels: (typeof copy)["mk"]["userColumns"],
+    language: Language,
 ) {
   downloadCsv("platform-admin-users.csv", [
     [
@@ -962,10 +964,10 @@ function exportUsersCsv(
       labelFor(user.status, language),
       user.roles.map((role) => labelFor(role, language)).join(", "),
       user.memberships
-        .map(
-          (item) => `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
-        )
-        .join(", "),
+          .map(
+              (item) => `${item.tenantId}: ${labelFor(item.accessLevel, language)}`,
+          )
+          .join(", "),
       formatDate(user.lastLoginAt),
     ]),
   ]);
