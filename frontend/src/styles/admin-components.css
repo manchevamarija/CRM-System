@@ -510,6 +510,7 @@ footer small {
 }
 .platform-search input,
 .platform-filter-select select {
+  box-sizing: border-box;
   width: 100%;
   min-height: 44px;
   padding: 10px 13px;
