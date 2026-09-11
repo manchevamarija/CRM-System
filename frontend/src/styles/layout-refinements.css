@@ -2877,6 +2877,10 @@ footer .brand.invert img.crm-system-logo {
     grid-column: 2 !important;
     grid-row: 1/4 !important;
     justify-self: stretch !important;
+    transform: translateX(-30px) !important;
+  }
+  .help-strip .light:hover {
+    transform: translate(-30px, -3px) !important;
   }
   .help-strip:after {
     right: 28px !important;
@@ -3925,5 +3929,15 @@ footer .brand.invert img.crm-system-logo {
   }
   .admin-org-create-grid button {
     transform: none !important;
+  }
+}
+
+@media (min-width: 901px) {
+  section.help-strip > button.light {
+    left: -30px !important;
+    transform: translateX(-30px) !important;
+  }
+  section.help-strip > button.light:hover {
+    transform: translate(-30px, -3px) !important;
   }
 }
