@@ -688,11 +688,11 @@ function UsersTable({
       <div className="platform-table-scroll platform-users-scroll">
         <table className="platform-table platform-users-table">
           <colgroup>
-            <col style={{ width: "29%" }} />
-            <col style={{ width: "11%" }} />
-            <col style={{ width: "22%" }} />
+            <col style={{ width: "31%" }} />
+            <col style={{ width: "14%" }} />
+            <col style={{ width: "21%" }} />
             <col style={{ width: "18%" }} />
-            <col style={{ width: "20%" }} />
+            <col style={{ width: "16%" }} />
           </colgroup>
           <thead>
             <tr className="platform-users-filter-row">
