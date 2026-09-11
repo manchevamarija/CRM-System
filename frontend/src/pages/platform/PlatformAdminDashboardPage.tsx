@@ -683,7 +683,8 @@ function UsersTable({
     <section className="meeting-card platform-table-card">
       {loading && <p>{loadingText}</p>}
       {error && <p className="form-error">{error}</p>}
-      <div className="platform-table-toolbar platform-users-toolbar">
+      <div className="platform-table-scroll platform-users-scroll">
+        <div className="platform-table-toolbar platform-users-toolbar">
         <label className="platform-search">
           <span>{search.label}</span>
           <input
@@ -750,8 +751,7 @@ function UsersTable({
             {exportLabel}
           </button>
         </div>
-      </div>
-      <div className="platform-table-scroll">
+        </div>
         <table className="platform-table platform-users-table">
           <colgroup>
             <col style={{ width: "30%" }} />
@@ -768,6 +768,7 @@ function UsersTable({
               <th>{labels.memberships}</th>
               <th>{labels.lastLogin}</th>
             </tr>
+
           </thead>
           <tbody>
             {!loading && filteredUsers.length === 0 ? (
