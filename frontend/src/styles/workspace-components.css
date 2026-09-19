@@ -1,0 +1,334 @@
+.meeting-card,
+.detail-card {
+  border: 1px solid var(--line);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.payment-instructions {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.payment-instructions h3 {
+  margin: 0 0 14px;
+}
+.payment-instructions dl > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.payment-instructions dt {
+  color: #6e7e83;
+}
+.payment-instructions dd {
+  margin: 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.payment-settings-form {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  background: #f8faf9;
+}
+.change-request-card {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 18px;
+}
+.change-request-card > button {
+  justify-self: start;
+}
+.change-request-form {
+  display: grid;
+  gap: 16px;
+  max-width: 760px;
+}
+.change-request-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+}
+.change-request-form select,
+.change-request-form textarea {
+  width: 100%;
+  border: 1px solid #c9d4d1;
+  padding: 12px;
+  font: inherit;
+}
+.evidence-template-panel {
+  min-width: 0;
+}
+.evidence-workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+.evidence-center [hidden] {
+  display: none !important;
+}
+.evidence-center-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 30px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.evidence-center-header h2 {
+  margin: 8px 0 6px;
+  font-size: clamp(28px, 3vw, 42px);
+}
+.evidence-center-header p {
+  max-width: 720px;
+  margin: 0;
+  color: #65747a;
+  line-height: 1.5;
+}
+.evidence-summary {
+  min-width: 112px;
+  padding: 14px 18px;
+  border-left: 3px solid #16845f;
+  background: #f3f8f5;
+}
+.evidence-summary b,
+.evidence-summary span {
+  display: block;
+}
+.evidence-summary b {
+  font-size: 28px;
+}
+.evidence-summary span {
+  color: #65747a;
+}
+.evidence-view-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.evidence-view-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 10px 18px;
+  border: 0;
+  background: transparent;
+  color: #55666c;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.evidence-view-tabs button.active {
+  background: #e9f4ee;
+  color: #087052;
+  box-shadow: inset 0 -2px #16845f;
+}
+.evidence-view-tabs small {
+  min-width: 24px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #fff;
+  color: #087052;
+  text-align: center;
+}
+.evidence-workspace > .workspace-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--line);
+  max-width: 980px;
+  width: 100%;
+}
+.evidence-workspace > .workspace-form h2,
+.evidence-workspace > .workspace-form .primary {
+  grid-column: 1 / -1;
+}
+.evidence-id-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.evidence-id-control .secondary {
+  white-space: nowrap;
+  padding-inline: 18px;
+}
+.evidence-target-picker {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  margin-top: 10px;
+  padding: 12px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  background: #f7f9f8;
+}
+.evidence-target-picker > small {
+  color: #65747a;
+}
+.evidence-target-picker > button {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d4ddda;
+  background: #fff;
+  color: #172026;
+  text-align: left;
+  cursor: pointer;
+}
+.evidence-target-picker > button:hover {
+  border-color: #16845f;
+  background: #edf7f2;
+}
+.evidence-target-picker code {
+  color: #65747a;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.evidence-section-heading {
+  margin: 4px 0 22px;
+}
+.evidence-section-heading h2 {
+  margin: 10px 0 8px;
+  font-size: clamp(24px, 2.2vw, 34px);
+}
+.evidence-section-heading p {
+  max-width: 680px;
+  margin: 0;
+  color: #65747a;
+  line-height: 1.6;
+}
+.evidence-template-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.evidence-template-card {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.evidence-template-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  border: 1px solid #b9d9cb;
+  background: #fff;
+  color: #087b5f;
+  font:
+    700 11px/1 "IBM Plex Mono",
+    monospace;
+  letter-spacing: 0.8px;
+}
+.evidence-template-copy {
+  min-width: 0;
+}
+.evidence-template-copy > span {
+  color: var(--brand-red);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+.evidence-template-copy h3 {
+  margin: 6px 0 5px;
+  font-size: 18px;
+}
+.evidence-template-copy p {
+  margin: 0 0 8px;
+  color: #65747a;
+  line-height: 1.45;
+}
+.evidence-template-copy small {
+  color: #879398;
+}
+.template-download-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+}
+.format-button {
+  min-width: 92px;
+  border: 1px solid #16845f;
+  background: #fff;
+  color: #087052;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.format-button-primary,
+.format-button:hover {
+  background: #fff;
+  color: #087052;
+}
+.format-button:hover {
+  background: #087052;
+  color: #fff;
+}
+.evidence-register-title {
+  margin: 0 0 18px;
+}
+.evidence-register-panel {
+  padding: 28px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.evidence-register-panel .meeting-card {
+  margin-bottom: 12px;
+}
+.detail-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 0;
+}
+.detail-card dt {
+  color: #738488;
+}
+.detail-card dd {
+  font-weight: 600;
+}
+.empty-state,
+.empty-panel,
+.padded {
+  padding: 28px;
+}
+.back-link {
+  border: 0;
+  background: none;
+  color: var(--green);
+  cursor: pointer;
+}
+
+.organization-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.organization-detail-head .kicker {
+  margin-left: auto;
+  text-align: right;
+}
+
+.ticket-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.45fr) minmax(
+      180px,
+      0.55fr
+    );
+  gap: 0.75rem;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--line);
+}

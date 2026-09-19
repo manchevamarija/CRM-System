@@ -1,0 +1,12 @@
+[Unit]
+Description=CRM System database and uploads backup
+Requires=docker.service
+After=docker.service crm-system.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/crm-system/current
+Environment=COMPOSE_FILE=docker-compose.production.yml
+Environment=COMPOSE_PROJECT_NAME=crm-system
+Environment=ENV_FILE=/opt/crm-system/shared/.env.production
+ExecStart=/bin/sh deploy/backup.sh
