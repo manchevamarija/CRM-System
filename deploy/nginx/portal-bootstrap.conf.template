@@ -1,0 +1,20 @@
+limit_req_zone $binary_remote_addr zone=login:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=contact:10m rate=30r/m;
+# This nginx sits BEHIND another reverse proxy on this shared server, which
+# terminates TLS and should already send X-Forwarded-Proto. Trust that value
+# when present (real visitors are on https); only fall back to "http" for
+# direct/local requests that arrive with no such header at all.
+map $http_x_forwarded_proto $inbound_scheme {
+  default $http_x_forwarded_proto;
+  ""      "http";
+}
+server {
+  listen 80;
+  server_name _;
+  location /.well-known/acme-challenge/ { root /var/www/certbot; }
+  location /api/auth/ { limit_req zone=login burst=5 nodelay; proxy_pass http://api:8080; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $inbound_scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; }
+  location = /api/public/contact-requests { limit_req zone=contact burst=10 nodelay; proxy_pass http://api:8080; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $inbound_scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; }
+  location /api/ { proxy_pass http://api:8080; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $inbound_scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; }
+  location /hubs/ { proxy_pass http://api:8080; proxy_http_version 1.1; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $inbound_scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade"; }
+  location / { proxy_pass http://frontend:80; }
+}

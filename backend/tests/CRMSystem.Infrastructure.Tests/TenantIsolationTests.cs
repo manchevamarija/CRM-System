@@ -1,0 +1,293 @@
+using CRMSystem.Application.Tenancy;
+using CRMSystem.Domain.Entities;
+using CRMSystem.Infrastructure.Persistence;
+using CRMSystem.Infrastructure.Persistence.Repositories;
+using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+
+namespace CRMSystem.Infrastructure.Tests;
+
+public sealed class TenantIsolationTests
+{
+    [Fact]
+    public async Task Tenant_owned_rows_are_automatically_scoped()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var digitmakOrganizationId = Guid.NewGuid();
+
+        await using (var digitmak = database.Context("digitmak"))
+        {
+            digitmak.Organizations.Add(new Organization
+            {
+                Id = digitmakOrganizationId,
+                Name = "CRM System client",
+                CreatedByUserId = Guid.NewGuid(),
+            });
+            digitmak.Files.Add(new FileObject
+            {
+                OriginalFilename = "tenant-document.pdf",
+                StoredPath = "digitmak/tenant-document.pdf",
+                ContentType = "application/pdf",
+                SizeBytes = 42,
+                Checksum = "TEST",
+                UploadedBy = Guid.NewGuid(),
+                EntityType = nameof(ContactRequest),
+                EntityId = Guid.NewGuid(),
+            });
+            await digitmak.SaveChangesAsync();
+        }
+
+        await using (var vezilka = database.Context("vezilka"))
+        {
+            Assert.Empty(await vezilka.Organizations.ToListAsync());
+            Assert.Empty(await vezilka.Files.ToListAsync());
+            vezilka.Organizations.Add(new Organization
+            {
+                Name = "Vezilka client",
+                CreatedByUserId = Guid.NewGuid(),
+            });
+            await vezilka.SaveChangesAsync();
+        }
+
+        await using var digitmakRead = database.Context("digitmak");
+        var organizations = await digitmakRead.Organizations.ToListAsync();
+        Assert.Single(organizations);
+        Assert.Equal(digitmakOrganizationId, organizations[0].Id);
+        Assert.Equal("digitmak", organizations[0].TenantId);
+        Assert.Equal("digitmak", (await digitmakRead.Files.SingleAsync()).TenantId);
+    }
+
+    [Fact]
+    public async Task Cross_tenant_updates_are_rejected_even_if_filters_are_bypassed()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        Guid organizationId;
+
+        await using (var digitmak = database.Context("digitmak"))
+        {
+            var organization = new Organization
+            {
+                Name = "Protected client",
+                CreatedByUserId = Guid.NewGuid(),
+            };
+            digitmak.Add(organization);
+            await digitmak.SaveChangesAsync();
+            organizationId = organization.Id;
+        }
+
+        await using var hpc = database.Context("hpc");
+        var foreign = await hpc.Organizations.IgnoreQueryFilters().SingleAsync(x => x.Id == organizationId);
+        foreign.Name = "Illegal update";
+
+        var error = await Assert.ThrowsAsync<InvalidOperationException>(() => hpc.SaveChangesAsync());
+        Assert.Contains("Cross-tenant", error.Message);
+    }
+
+    [Fact]
+    public async Task Handover_keeps_one_request_visible_to_origin_and_new_owner_only()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var requestId = Guid.NewGuid();
+        var fileId = Guid.NewGuid();
+
+        await using (var digitmak = database.Context("digitmak"))
+        {
+            digitmak.ContactRequests.Add(new ContactRequest
+            {
+                Id = requestId,
+                CreatedTenantId = "digitmak",
+                OwnerTenantId = "vezilka",
+                OrganizationName = "Shared client",
+                ContactName = "Client",
+                Email = "client@example.test",
+                MainNeed = "Transfer the complete request",
+            });
+            digitmak.Files.Add(new FileObject
+            {
+                Id = fileId,
+                OriginalFilename = "handover.pdf",
+                StoredPath = "digitmak/handover.pdf",
+                ContentType = "application/pdf",
+                SizeBytes = 42,
+                Checksum = "HANDOVER",
+                UploadedBy = Guid.NewGuid(),
+                EntityType = nameof(ContactRequest),
+                EntityId = requestId,
+            });
+            digitmak.ContactRequestAttachments.Add(new ContactRequestAttachment
+            {
+                ContactRequestId = requestId,
+                FileId = fileId,
+                UploadedBy = Guid.NewGuid(),
+            });
+            await digitmak.SaveChangesAsync();
+        }
+
+        await using var origin = database.Context("digitmak");
+        await using var owner = database.Context("vezilka");
+        await using var unrelated = database.Context("bau");
+
+        Assert.Equal(requestId, (await origin.ContactRequests.SingleAsync()).Id);
+        Assert.Equal(requestId, (await owner.ContactRequests.SingleAsync()).Id);
+        Assert.Equal(fileId, (await origin.Files.SingleAsync()).Id);
+        Assert.Equal(fileId, (await owner.Files.SingleAsync()).Id);
+        Assert.Empty(await unrelated.ContactRequests.ToListAsync());
+        Assert.Empty(await unrelated.Files.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Staff_memberships_are_tenant_specific()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var userId = Guid.NewGuid();
+
+        await using (var hpc = database.Context("hpc"))
+        {
+            hpc.UserTenantMemberships.Add(new UserTenantMembership { UserId = userId, AccessLevel = "Admin" });
+            await hpc.SaveChangesAsync();
+        }
+
+        await using var hpcRead = database.Context("hpc");
+        await using var bauRead = database.Context("bau");
+        Assert.True(await hpcRead.UserTenantMemberships.AnyAsync(x => x.UserId == userId));
+        Assert.False(await bauRead.UserTenantMemberships.AnyAsync(x => x.UserId == userId));
+    }
+
+    [Fact]
+    public async Task Staff_notification_recipients_are_tenant_staff_members()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var digitmakAdmin = Guid.NewGuid();
+        var digitmakHelpDesk = Guid.NewGuid();
+        var digitmakExpert = Guid.NewGuid();
+        var hpcAdmin = Guid.NewGuid();
+        var legacyDigitmakAdmin = Guid.NewGuid();
+        var client = Guid.NewGuid();
+        var adminRole = Guid.NewGuid();
+
+        await using (var setup = database.Context("digitmak"))
+        {
+            setup.Users.AddRange(
+                new AppUser { Id = digitmakAdmin, UserName = "digitmak-admin@example.test", Email = "digitmak-admin@example.test" },
+                new AppUser { Id = digitmakHelpDesk, UserName = "help-desk@example.test", Email = "help-desk@example.test" },
+                new AppUser { Id = digitmakExpert, UserName = "expert@example.test", Email = "expert@example.test" },
+                new AppUser { Id = legacyDigitmakAdmin, UserName = "legacy-admin@example.test", Email = "legacy-admin@example.test" },
+                new AppUser { Id = client, UserName = "client@example.test", Email = "client@example.test" },
+                new AppUser { Id = hpcAdmin, UserName = "hpc-admin@example.test", Email = "hpc-admin@example.test" }
+            );
+            setup.Roles.Add(new IdentityRole<Guid>(PortalRoles.Admin) { Id = adminRole, NormalizedName = "ADMIN" });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakAdmin, AccessLevel = PortalRoles.Admin });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakHelpDesk, AccessLevel = PortalRoles.HelpDeskAgent });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = digitmakExpert, AccessLevel = PortalRoles.Expert });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = legacyDigitmakAdmin, AccessLevel = "Staff" });
+            setup.UserTenantMemberships.Add(new UserTenantMembership { UserId = client, AccessLevel = PortalRoles.Client });
+            setup.UserRoles.Add(new IdentityUserRole<Guid> { UserId = legacyDigitmakAdmin, RoleId = adminRole });
+            await setup.SaveChangesAsync();
+        }
+
+        await using (var hpc = database.Context("hpc"))
+        {
+            hpc.UserTenantMemberships.Add(new UserTenantMembership { UserId = hpcAdmin, AccessLevel = "Admin" });
+            await hpc.SaveChangesAsync();
+        }
+
+        await using var digitmak = database.Context("digitmak");
+        var recipients = await new ContactRequestRepository(digitmak).GetAdminUserIdsAsync("digitmak", CancellationToken.None);
+
+        Assert.Contains(digitmakAdmin, recipients);
+        Assert.Contains(digitmakHelpDesk, recipients);
+        Assert.Contains(digitmakExpert, recipients);
+        Assert.Contains(legacyDigitmakAdmin, recipients);
+        Assert.DoesNotContain(hpcAdmin, recipients);
+        Assert.DoesNotContain(client, recipients);
+    }
+
+    [Fact]
+    public async Task Staff_notification_recipients_follow_configured_role_settings()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        var digitmakAdmin = Guid.NewGuid();
+        var digitmakHelpDesk = Guid.NewGuid();
+        var digitmakExpert = Guid.NewGuid();
+
+        await using (var setup = database.Context("digitmak"))
+        {
+            setup.UserTenantMemberships.AddRange(
+                new UserTenantMembership { UserId = digitmakAdmin, AccessLevel = PortalRoles.Admin },
+                new UserTenantMembership { UserId = digitmakHelpDesk, AccessLevel = PortalRoles.HelpDeskAgent },
+                new UserTenantMembership { UserId = digitmakExpert, AccessLevel = PortalRoles.Expert }
+            );
+            setup.SystemSettings.Add(new SystemSetting
+            {
+                Key = StaffNotificationRecipients.RolesSettingKey,
+                Value = $"{PortalRoles.Admin},{PortalRoles.Expert}",
+            });
+            await setup.SaveChangesAsync();
+        }
+
+        await using var digitmak = database.Context("digitmak");
+        var recipients = await StaffNotificationRecipients.GetAsync(digitmak, CancellationToken.None);
+
+        Assert.Contains(digitmakAdmin, recipients);
+        Assert.Contains(digitmakExpert, recipients);
+        Assert.DoesNotContain(digitmakHelpDesk, recipients);
+    }
+
+    [Fact]
+    public async Task Runtime_model_keeps_the_defaults_recorded_in_the_migration_snapshot()
+    {
+        await using var database = await TestDatabase.CreateAsync();
+        await using var context = database.Context("digitmak");
+
+        var attributionDefault = context.Model
+            .FindEntityType(typeof(ContactRequest))!
+            .FindProperty(nameof(ContactRequest.AttributionStatus))!
+            .GetDefaultValue();
+        var transferApprovalDefault = context.Model
+            .FindEntityType(typeof(ContactRequestTransfer))!
+            .FindProperty(nameof(ContactRequestTransfer.ApprovalStatus))!
+            .GetDefaultValue();
+
+        Assert.Equal("Unattributed", attributionDefault);
+        Assert.Equal("Approved", transferApprovalDefault);
+        Assert.Equal("Pending", new ContactRequestTransfer().ApprovalStatus);
+    }
+
+    private sealed class TestDatabase : IAsyncDisposable
+    {
+        private readonly SqliteConnection connection;
+
+        private TestDatabase(SqliteConnection connection) => this.connection = connection;
+
+        public static async Task<TestDatabase> CreateAsync()
+        {
+            var connection = new SqliteConnection("Data Source=:memory:");
+            await connection.OpenAsync();
+            var database = new TestDatabase(connection);
+            await using var setup = database.Context("crm");
+            await setup.Database.EnsureCreatedAsync();
+            return database;
+        }
+
+        public PortalDbContext Context(string tenantId)
+        {
+            var options = new DbContextOptionsBuilder<PortalDbContext>()
+                .UseSqlite(connection)
+                .EnableSensitiveDataLogging()
+                .Options;
+            return new PortalDbContext(options, tenantContext: new TestTenantContext(tenantId));
+        }
+
+        public async ValueTask DisposeAsync() => await connection.DisposeAsync();
+    }
+
+    private sealed class TestTenantContext(string id) : ITenantContext
+    {
+        public TenantDescriptor Current { get; } = new(id, id, id, $"support@{id}.test", "#123456", "#abcdef");
+        public string EffectiveTenantId => Current.Id;
+        public string? AssignedPartnerCode => null;
+        public bool IsGlobalScope => false;
+    }
+}
